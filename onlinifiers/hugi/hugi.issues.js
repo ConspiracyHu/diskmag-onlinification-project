@@ -1,0 +1,23 @@
+HUGI_ISSUES = [
+  { "thumbnail": "hugi18.jpg", "url": "hugi18.dat", "title": "Hugi #18" },
+  { "thumbnail": "hugi19.jpg", "url": "hugi19.dat", "title": "Hugi #19" },
+  { "thumbnail": "hugi20.jpg", "url": "hugi20.dat", "title": "Hugi #20" },
+  { "thumbnail": "hugi21.jpg", "url": "hugi21.dat", "title": "Hugi #21" },
+  { "thumbnail": "hugi22.jpg", "url": "hugi22.dat", "title": "Hugi #22" },
+  { "thumbnail": "hugi23.jpg", "url": "hugi23.dat", "title": "Hugi #23" },
+  { "thumbnail": "hugi24.jpg", "url": "hugi24.dat", "title": "Hugi #24" },
+  { "thumbnail": "hugi25.jpg", "url": "hugi25.dat", "title": "Hugi #25" },
+  { "thumbnail": "hugi26.jpg", "url": "hugi26.dat", "title": "Hugi #26" },
+  { "thumbnail": "hugi27.jpg", "url": "hugi27.dat", "title": "Hugi #27" },
+  { "thumbnail": "hugi28.jpg", "url": "hugi28.dat", "title": "Hugi #28" },
+  { "thumbnail": "hugi29.jpg", "url": "hugi29.dat", "title": "Hugi #29" },
+  { "thumbnail": "hugi30.jpg", "url": "hugi30.dat", "title": "Hugi #30" },
+  { "thumbnail": "hugi31.jpg", "url": "hugi31.dat", "title": "Hugi #31" },
+  { "thumbnail": "hugi32.jpg", "url": "hugi32.dat", "title": "Hugi #32" },
+  { "thumbnail": "hugi33.jpg", "url": "hugi33.dat", "title": "Hugi #33" },
+  { "thumbnail": "hugi34.jpg", "url": "hugi34.dat", "title": "Hugi #34" },
+  { "thumbnail": "hugi35.jpg", "url": "hugi35.dat", "title": "Hugi #35" },
+  { "thumbnail": "hugi36.jpg", "url": "hugi36.dat", "title": "Hugi #36" },
+  { "thumbnail": "hugi37.jpg", "url": "hugi37.dat", "title": "Hugi #37" },
+  { "thumbnail": "hugi38.jpg", "url": "hugi38.dat", "title": "Hugi #38" }
+];

@@ -1,0 +1,21 @@
+PAIN_ISSUES = [
+  { "thumbnail": "pain41.jpg", "date":"October 1999",   "title": "PAiN (10/99)", "url": "pain1099.dat" },
+  { "thumbnail": "pain42.jpg", "date":"December 1999",  "title": "PAiN (00/00)", "url": "pain0000.dat" },
+  { "thumbnail": "pain43.jpg", "date":"February 2000",  "title": "PAiN (02/00)", "url": "pain0200.dat" },
+  { "thumbnail": "pain44.jpg", "date":"May 2000",       "title": "PAiN (05/00)", "url": "pain0500.dat" },
+  { "thumbnail": "pain45.jpg", "date":"December 2000",  "title": "PAiN (12/00)", "url": "pain1200.dat" },
+  { "thumbnail": "pain46.jpg", "date":"February 2001",  "title": "PAiN (02/01)", "url": "pain0201.dat" },
+  { "thumbnail": "pain47.jpg", "date":"April 2001",     "title": "PAiN (04/01)", "url": "pain0401.dat" },
+  { "thumbnail": "pain48.jpg", "date":"August 2001",    "title": "PAiN #48 (08/01)", "url": "pain0801.dat" },
+  { "thumbnail": "pain49.jpg", "date":"October 2001",   "title": "PAiN #49 (10/01)", "url": "pain1001.dat" },
+  { "thumbnail": "pain50.jpg", "date":"February 2002",  "title": "PAiN #50 (02/02)", "url": "pain0202.dat" },
+  { "thumbnail": "pain51.jpg", "date":"July 2000",      "title": "PAiN #51 (07/02)", "url": "pain0702.dat" },
+  { "thumbnail": "pain52.jpg", "date":"Novermber 2000", "title": "PAiN #52 (11/02)", "url": "pain1102.dat", "pwd": "eraserhead" },
+  { "thumbnail": "pain53.jpg", "date":"February 2000",  "title": "PAiN #53 (02/03)", "url": "pain0203.dat", "pwd": "a5j,2KsWWf" },
+  { "thumbnail": "pain54.jpg", "date":"October 2003",   "title": "PAiN #54 (10/03)", "url": "pain1003.dat", "pwd": "8ae2mQ2R5" },
+  { "thumbnail": "pain55.jpg", "date":"March 2004",     "title": "PAiN #55 (03/04)", "url": "pain0304.dat", "pwd": "8ae2mQ2R5" },
+  { "thumbnail": "pain56.jpg", "date":"December 2004",  "title": "PAiN #56 (12/04)", "url": "pain1204.dat", "pwd": "a9C1jAz42" },
+  { "thumbnail": "pain57.jpg", "date":"October 2005",   "title": "PAiN #57 (10/05)", "url": "pain1005.dat", "pwd": "a9C1jAz42" },
+  { "thumbnail": "pain58.jpg", "date":"December 2006",  "title": "PAiN #58 (12/06)", "url": "pain1206.dat", "pwd": "a9C1jAz42" },
+  { "thumbnail": "pain59.jpg", "date":"December 2007",  "title": "PAiN #59 (12/07) final", "url": "pain1207final.dat", "pwd": "a9C1jAz42" }
+];

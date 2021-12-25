@@ -1,0 +1,77 @@
+@font-face
+{
+  font-family: 'Dissonance Diskmag';
+  src: url('DissonanceDiskmag.woff2') format('woff2'),
+      url('DissonanceDiskmag.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+#menu-main,
+#article
+{
+  text-align: left;
+  list-style: none;
+  color: #B8B8B8;
+  font-family: "Dissonance Diskmag", monospace;
+  font-size: 16px;
+  line-height: 16px;
+  position: absolute;
+  padding: 0;
+  margin: 0;
+  overflow-y: scroll;
+  overflow-y: overlay;
+  scrollbar-width: thin;
+  white-space: pre-wrap;
+
+  left: 8px;
+  top: 30px;
+  height: 512px;
+  width: 648px;
+}
+#article a
+{
+  color: inherit;
+  text-decoration: none;
+  color: #007C94;
+}
+#article a:hover
+{
+  color: #00D0D0;
+}
+#menu-container
+{
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 80px;
+}
+#article-title {
+  font-family: "Dissonance Diskmag", monospace;
+  color: #00D0D0;
+  text-align: left;
+  font-size: 16px;
+  white-space: pre-wrap;
+  width: 473px;
+  position: absolute;
+  left: 81px;
+  top: 570px;
+  text-shadow: 1px 1px 0px black;
+  text-align: center;
+}
+#article-image
+{
+  z-index: 2;
+  position: absolute;
+  width: 800px;
+  height: 600px;
+  background: black;
+  text-align: center;
+}
+#menu-main li[data-alias]:hover
+{
+  background: #ffffff40;
+  color: #fff;
+  cursor: pointer;
+}

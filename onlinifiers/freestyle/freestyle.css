@@ -1,0 +1,92 @@
+@font-face 
+{
+  font-family: 'Freestyle Diskmag';
+  src: url('FreestyleDiskmag.woff2') format('woff2'),
+      url('FreestyleDiskmag.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+#menu-main,
+#article
+{
+  text-align: left;
+  list-style: none;
+  color: white;
+  font-family: "Freestyle Diskmag", monospace;
+  font-size: 16px;
+  line-height: 16px;
+  position: absolute;
+  padding: 0;
+  margin: 0;
+  scrollbar-width: thin;
+  white-space: pre-wrap;
+
+  text-shadow: 3px 3px 0px black;
+  
+  left: 0px;
+  top: 28px;
+  height: 392px;
+  width: 100%;
+}
+#menu-main 
+{
+  overflow-x: scroll;
+  overflow-x: overlay;
+  column-width: 307px;
+  max-height: 392px;
+  width: 640px;
+}
+#article
+{
+  height: 386px;
+  overflow-y: scroll;
+  overflow-y: overlay;
+}
+#container[data-issue="FS10"] #menu-main,
+#container[data-issue="FS10"] #article
+{
+  top: 82px;
+  max-height: 348px;
+  height: 348px;
+}
+#article a 
+{
+  color: inherit;
+}
+#menu-container
+{
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 80px;
+}
+#article-title
+{
+  font-family: "Freestyle Diskmag", monospace;
+  color: white;
+  text-align: left;
+  font-size: 16px;
+  white-space: pre-wrap;
+
+  width: 500px;
+  position: absolute;
+  left: 70px;
+  top: 2px;
+}
+#article-image 
+{
+  z-index: 2;
+  position: absolute;
+  width: 640px;
+  height: 480px;
+  background: black;
+  text-align: center;
+}
+#menu-main li[data-idx]:hover
+{
+  background: #ffffff40;
+  color: #fff;
+  cursor: pointer;
+}

@@ -1,0 +1,64 @@
+#menu-main,
+#article
+{
+  text-align: left;
+  list-style: none;
+  color: white;
+  font-family: "Verdana", monospace;
+  font-size: 12px;
+  position: absolute;
+  padding: 0;
+  margin: 0;
+  scrollbar-width: thin;
+
+  left: 0px;
+  top: 0px;
+  width: 100%;
+}
+#menu-main {
+  overflow-x: scroll;
+  overflow-x: overlay;
+  column-width: 300px;
+  max-height: 284px;
+  left: 24px;
+  width: 600px;
+  column-gap: 0;
+}
+#article
+{
+  overflow-y: scroll;
+  overflow-y: overlay;
+  height: 480px;
+}
+#article p
+{
+  padding: 0;
+  margin: 0;
+}
+#article a
+{
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+#article a:hover
+{
+  text-decoration: underline;
+}
+#article-title
+{
+  font-family: "Verdana", monospace;
+  color: white;
+  text-align: left;
+  font-size: 16px;
+  white-space: pre-wrap;
+
+  width: 500px;
+  position: absolute;
+  left: 70px;
+  top: 2px;
+}
+#selector {
+  font-size: 32px;
+  column-count: 2;
+}

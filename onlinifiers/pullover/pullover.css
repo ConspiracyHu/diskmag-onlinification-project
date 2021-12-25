@@ -1,0 +1,79 @@
+@font-face 
+{
+  font-family: 'Pullover Default';
+  src: url('PulloverDefault.woff2') format('woff2'),
+      url('PulloverDefault.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face 
+{
+  font-family: 'Pullover Alternate';
+  src: url('PulloverAlternate.woff2') format('woff2'),
+      url('PulloverAlternate.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+#menu-main,
+#article
+{
+  text-align: left;
+  list-style: none;
+  color: white;
+  font-family: "Pullover Default", monospace;
+  font-size: 16px;
+  line-height: 16px;
+  position: absolute;
+  padding: 0;
+  margin: 0;
+  scrollbar-width: thin;
+  white-space: pre-wrap;
+  
+  overflow-y: scroll;
+  overflow-y: overlay;
+}
+#menu-main 
+{
+  width: 313px;
+  left: 120px;
+  top: 106px;
+  height: 314px;
+  line-height: 26px;
+  text-shadow: 1px 1px 0px black;
+}
+#article
+{
+  width: 640px;
+  height: 480px;
+  line-height: 20px;
+}
+#article a 
+{
+  color: inherit;
+}
+#article-image 
+{
+  z-index: 2;
+  position: absolute;
+  width: 640px;
+  height: 480px;
+  background: black;
+  text-align: center;
+}
+#menu-main li
+{
+  color: #0f0;
+}
+#menu-main li[data-link]
+{
+  color: #fff;
+}
+#menu-main li[data-link]:hover
+{
+  background: #ffffff40;
+  color: #fff;
+  cursor: pointer;
+}
