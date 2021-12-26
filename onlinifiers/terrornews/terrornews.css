@@ -1,0 +1,105 @@
+@font-face 
+{
+  font-family: 'Terror News Diskmag';
+  src: url('TerrorNewsDiskmag.woff2') format('woff2'),
+      url('TerrorNewsDiskmag.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+#menu-main,
+#menu-container,
+#article
+{
+  text-align: left;
+  list-style: none;
+  color: white;
+  font-family: "Terror News Diskmag", monospace;
+  font-size: 16px;
+  line-height: 16px;
+  position: absolute;
+  padding: 0;
+  margin: 0;
+  scrollbar-width: thin;
+  white-space: pre-wrap;
+
+  left: 0px;
+  top: 100px;
+  height: 392px;
+  width: 100%;
+}
+#menu-main 
+{
+  column-width: 300px;
+  max-height: 328px;
+  top: 0;
+  left: 0px;
+  column-gap: 0;
+  letter-spacing: 1px;
+}
+#menu-container
+{
+  overflow-x: scroll;
+  overflow-x: overlay;
+  overflow-y: hidden;
+  width: 630px;
+  height: 316px;
+  left: 10px;
+  top: 100px;
+  line-height: 15px;
+}
+#article
+{
+  height: 392px;
+  overflow-y: scroll;
+  overflow-y: overlay;
+  left: 10px;
+  top: 100px;
+  width: 630px;
+  height: 302px;
+  line-height: 15px;
+}
+#article a 
+{
+  color: inherit;
+}
+#article-underlay {
+  width: 640px;
+  height: 295px;
+  top: 116px;
+  position: absolute;
+  z-index: -1;
+}
+#article-title
+{
+  font-family: "Terror News Diskmag", monospace;
+  color: white;
+  text-align: left;
+  font-size: 16px;
+  white-space: pre-wrap;
+
+  width: 500px;
+  position: absolute;
+  left: 70px;
+  top: 2px;
+}
+#article-image 
+{
+  z-index: 2;
+  position: absolute;
+  width: 640px;
+  height: 480px;
+  background: black;
+  text-align: center;
+}
+#menu-main li[data-idx]:hover
+{
+  background: #ffffff40;
+  color: #fff;
+  cursor: pointer;
+}
+#selector {
+  font-size: 32px;
+  column-count: 2;
+}
