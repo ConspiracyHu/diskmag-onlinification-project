@@ -1,0 +1,76 @@
+#menu-main,
+#article
+{
+  text-align: left;
+  list-style: none;
+  color: white;
+  font-family: serif; /*Perpetua*/
+  font-size: 16px;
+  line-height: 18px;
+  position: absolute;
+  padding: 0;
+  margin: 0;
+  scrollbar-width: thin;
+  white-space: pre-wrap;
+
+  left: 8px;
+  top: 64px;
+  height: 305px;
+  width: 480px;
+}
+#article
+{
+  overflow-y: scroll;
+  overflow-y: overlay;
+
+  left: 140px;
+  top: 20px;
+  width: 660px;
+  height: 480px;
+}
+#article.columns
+{
+  overflow-x: scroll;
+  overflow-x: overlay;
+  overflow-y: auto;
+
+  column-gap: 12px;
+  column-width: 306px;
+  width: 640px;
+}
+#article.mono
+{
+  font-family: monospace; /* letter gothic */
+}
+#article img 
+{
+  float: right;
+  max-width: 50%;
+}
+
+#article a 
+{
+  color: inherit;
+}
+#menu-container
+{
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 80px;
+}
+#article-image 
+{
+  z-index: 2;
+  position: absolute;
+  width: 640px;
+  height: 480px;
+  background: black;
+  text-align: center;
+}
+#menu-main li[data-idx]:hover
+{
+  background: #ffffff;
+  color: #000;
+  cursor: pointer;
+}
