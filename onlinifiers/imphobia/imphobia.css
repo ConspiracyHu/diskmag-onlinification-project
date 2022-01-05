@@ -1,0 +1,145 @@
+@font-face 
+{
+  font-family: 'Imphobia Article';
+  src: url('ImphobiaArticle.woff2') format('woff2'),
+      url('ImphobiaArticle.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face 
+{
+  font-family: 'Imphobia Reading';
+  src: url('ImphobiaReading.woff2') format('woff2'),
+      url('ImphobiaReading.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face 
+{
+  font-family: 'Imphobia Big';
+  src: url('ImphobiaBig.woff2') format('woff2'),
+      url('ImphobiaBig.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+#menu-main,
+#menu-topic,
+#article
+{
+  text-align: left;
+  list-style: none;
+  font-family: serif; /*Perpetua*/
+  font-size: 16px;
+  line-height: 16px;
+  position: absolute;
+  padding: 0;
+  margin: 0;
+  scrollbar-width: thin;
+  white-space: pre-wrap;
+
+  left: 0px;
+  top: 158px;
+  height: 305px;
+  width: 480px;
+}
+#menu-main
+{
+  left: 216px;
+  top: 150px;
+  padding-top: 65px;
+  box-sizing: border-box;
+}
+#menu-main div
+{
+  height: 30px;
+  cursor: pointer;
+}
+#container[data-issue="IMPHOBIA9"] #menu-main
+{
+  top: 158px;
+}
+#container[data-issue="IMPHOBIA10"] #menu-main,
+#container[data-issue="IMPHOBIA11"] #menu-main
+{
+  padding-top: 99px;
+}
+#container[data-issue="IMPHOBIA10"] #menu-main div,
+#container[data-issue="IMPHOBIA11"] #menu-main div
+{
+  height: 26px;
+}
+#menu-topic
+{
+  overflow-y: scroll;
+  overflow-y: overlay;
+
+  font-family: 'Imphobia Article';
+  line-height: 20px;
+
+  width: 100%;
+  height: 242px;
+}
+#menu-topic li[data-idx]:hover
+{
+  background: #ffffff;
+  color: #000;
+  cursor: pointer;
+}
+#article
+{
+  overflow-y: scroll;
+  overflow-y: overlay;
+  
+  font-family: 'Imphobia Reading';
+
+  left: 0px;
+  width: 100%;
+  height: 250px;
+}
+#article.columns
+{
+  overflow-x: scroll;
+  overflow-x: overlay;
+  overflow-y: auto;
+
+  column-gap: 12px;
+  column-width: 306px;
+  width: 640px;
+  column-fill: auto;
+}
+#article.mono
+{
+  font-family: monospace; /* letter gothic */
+}
+#article img 
+{
+  float: right;
+  max-width: 50%;
+}
+
+#article a 
+{
+  color: inherit;
+}
+#menu-container
+{
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 80px;
+}
+#article-image 
+{
+  z-index: 2;
+  position: absolute;
+  width: 640px;
+  height: 480px;
+  background: black;
+  text-align: center;
+}
