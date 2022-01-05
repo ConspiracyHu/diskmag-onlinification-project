@@ -80,7 +80,6 @@ class CLi extends MagInterface
     var span = false;
     var images = [];
     var xPos = 0;
-    var state = new State();
     for(var x=0; x<cli.length; x++)
     {
       if (cli.charCodeAt(x) == 0xFF)
@@ -90,15 +89,15 @@ class CLi extends MagInterface
         {
           case 0: // font color
             var color = cli.charCodeAt(x+1);
-    				if (color==0xEF) color=1;
-    				if (color>5) color=3;
-            out += state.add("color",this.getColor(color));
+            if (color==0xEF) color=1;
+            if (color>5) color=3;
+            out += this.state.add("color",this.getColor(color));
             break;
           case 1: // normal font
-            out += state.remove("font-weight");
+            out += this.state.remove("font-weight");
             break;
           case 2: // bold font
-            out += state.add("font-weight","bold");
+            out += this.state.add("font-weight","bold");
             break;
           case 3: // picture
             var imagePath = cli.slice(x+1,x+9).replace(/\0+$/,"");
@@ -140,6 +139,9 @@ class CLi extends MagInterface
           this.loadASCIIStringFromArchive(articlepath).then((str)=>{
             var articleStr = str.split("\r\n");
 
+            this.state = new State();
+            var out = "";
+            var images = [];
             articleStr.forEach((i,idx)=>{
               if (idx==0)
               {
@@ -151,16 +153,21 @@ class CLi extends MagInterface
               }
 
               var parsed = this.parseToHTML(i,idx-1);
-              article.innerHTML += parsed.html + "\n";
-              parsed.images.forEach(i=>{
-                this.loadGrayscaleImage(i.url).then((blobUrl)=>{
-                  var elements = document.querySelectorAll("span[data-imageurl=\""+i.url+"\"]");
-                  elements.forEach(e=>{
-                    e.innerHTML = "<img src='"+blobUrl+"'/>"
-                  });
+              out += parsed.html + "\n";
+              images = images.concat(parsed.images);
+            });
+
+            article.innerHTML = out;
+
+            images.forEach(i=>{
+              this.loadGrayscaleImage(i.url).then((blobUrl)=>{
+                var elements = document.querySelectorAll("span[data-imageurl=\""+i.url+"\"]");
+                elements.forEach(e=>{
+                  e.innerHTML = "<img src='"+blobUrl+"'/>"
                 });
               });
             });
+
             article.scrollTo(0,0);
           });
         }
@@ -186,6 +193,9 @@ class CLi extends MagInterface
     var menu = document.querySelector("#menu-main");
     menu.innerHTML = "";
 
+    this.state = new State();
+    var images = [];
+    
     this.TOC.forEach((i,idx)=>{
       if (idx == 0)
       {
@@ -196,16 +206,8 @@ class CLi extends MagInterface
       }
       var li = document.createElement("li")
       var parsed = this.parseToHTML(i.label??"",idx-1);
-      parsed.images.forEach(i=>{
-        this.loadGrayscaleImage(i.url).then((blobUrl)=>{
-          var elements = document.querySelectorAll("span[data-imageurl=\""+i.url+"\"]");
-          elements.forEach(e=>{
-            e.innerHTML = "<img src='"+blobUrl+"'/>"
-          });
-        });
-      });
-
       li.innerHTML = (i.label && i.label.length) ? parsed.html : " ";
+      images = images.concat(parsed.images);
       menu.insertBefore( li, null );
       if (i.type != 0)
       {
@@ -221,6 +223,15 @@ class CLi extends MagInterface
           e.stopPropagation();
         }).bind(this)
       }
+    });
+
+    images.forEach(i=>{
+      this.loadGrayscaleImage(i.url).then((blobUrl)=>{
+        var elements = document.querySelectorAll("span[data-imageurl=\""+i.url+"\"]");
+        elements.forEach(e=>{
+          e.innerHTML = "<img src='"+blobUrl+"'/>"
+        });
+      });
     });
 
     if (first)
@@ -347,6 +358,8 @@ class CLi extends MagInterface
     return new Promise((resolve,reject)=>{
       clearStylesheetRules();
 
+      var issue = this.getCurrentIssueInfo();
+
       this.TOC = [];
       this.data = {};
 
@@ -361,32 +374,56 @@ class CLi extends MagInterface
         }
 
         this.loadFileFromArchive( "_ANYAG" ).then((data)=>{
+          var offset = issue.tocOffset;
           for(var i=0; i<data.length / 9; i++)
           {
-            while (this.TOC.length<=i+1)
+            while (this.TOC.length<=i+offset)
             {
               this.TOC.push({});
             }
-            this.TOC[i+1].type = data[i*9];
-            this.TOC[i+1].alias = ArrayBufferToString(data.slice(i*9+1,i*9+9)).replace(/\0+$/, '');
+            this.TOC[i+offset].type = data[i*9];
+            this.TOC[i+offset].alias = ArrayBufferToString(data.slice(i*9+1,i*9+9)).replace(/\0+$/, '');
           }
 
           this.loadFileFromArchive( "_DATAS" ).then((data)=>{
             var view = new DataView(data.buffer, 0, data.length);
 
             var ofs = 0;
-            this.data.numStartPics = data[ofs++];
-            this.data.articleTopY = view.getUint16(ofs,true); ofs+=2;
-            this.data.articleBottomY = view.getUint16(ofs,true); ofs+=2;
-            this.data.headlineX = view.getUint16(ofs,true); ofs+=2;
-            this.data.headlineY = view.getUint16(ofs,true); ofs+=2;
-            this.data.fontColors = {};
-            for(var i=0; i<5; i++)
+            if (issue.shortConfig)
             {
-              this.data.fontColors[i] = {};
-              this.data.fontColors[i].r = data[ofs++] * 4;
-              this.data.fontColors[i].g = data[ofs++] * 4;
-              this.data.fontColors[i].b = data[ofs++] * 4;
+              ofs+=4; // unknown
+
+              // hardwire these
+              this.data.articleTopY = 87;
+              this.data.articleBottomY = 396;
+              this.data.headlineX = 8;
+              this.data.headlineY = 50;
+
+              this.data.fontColors = {};
+              for(var i=0; i<3; i++)
+              {
+                this.data.fontColors[i] = {};
+                this.data.fontColors[i].r = data[ofs++] * 4;
+                this.data.fontColors[i].g = data[ofs++] * 4;
+                this.data.fontColors[i].b = data[ofs++] * 4;
+              }
+            }
+            else
+            {
+              this.data.numStartPics = data[ofs++];
+              this.data.articleTopY = view.getUint16(ofs,true); ofs+=2;
+              this.data.articleBottomY = view.getUint16(ofs,true); ofs+=2;
+              this.data.headlineX = view.getUint16(ofs,true); ofs+=2;
+              this.data.headlineY = view.getUint16(ofs,true); ofs+=2;
+              this.data.fontColors = {};
+              for(var i=0; i<5; i++)
+              {
+                this.data.fontColors[i] = {};
+                this.data.fontColors[i].r = data[ofs++] * 4;
+                this.data.fontColors[i].g = data[ofs++] * 4;
+                this.data.fontColors[i].b = data[ofs++] * 4;
+              }
+  
             }
 
             var roundedHeight = (this.data.articleBottomY-this.data.articleTopY);
