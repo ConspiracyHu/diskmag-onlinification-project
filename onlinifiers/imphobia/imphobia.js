@@ -290,8 +290,8 @@ class Imphobia extends MagInterface
           }
                 
           container.innerHTML = out;
+          container.scrollTo(0,0);      
         }
-        container.scrollTo(0,0);      
         
         resolve();        
       });  
