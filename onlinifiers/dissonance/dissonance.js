@@ -63,9 +63,7 @@ class Dissonance extends MagInterface
               
               var x = xPos * 8;
               var imageIdx = str.charCodeAt(++i);
-              console.log(image,x,y,x*8,y*16);
               this.loadImage(image).then(blobUrl=>{
-                console.log(image,x,y,x*8,y*16);
                 article.innerHTML += "<img src='"+blobUrl+"' style='position:absolute;left:"+(x)+"px;top:"+(y*16)+"px;'/>";  
               });
               i += image.length + 1;
