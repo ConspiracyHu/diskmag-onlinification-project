@@ -90,10 +90,173 @@ class PKWAREDCL
 {
   constructor()
   {
+    this.left = 0;
+    this.bitbuf = 0;
+    this.bitcnt = 0;
+
+    this.next = 0;
+    this.first = 1;  
+    this.out = new Uint8Array(PKWAREDCL_MAXWIN);
   }
 
+  bits(need)
+  {
+    /* load at least need bits into val */
+    var val = this.bitbuf;
+    while (this.bitcnt < need) 
+    {
+      val |= this.inStream[this.inPtr++] << this.bitcnt;          /* load eight bits */
+      this.bitcnt += 8;
+    }
+
+    /* drop need bits and update buffer, always zero to seven bits left */
+    this.bitbuf = val >> need;
+    this.bitcnt -= need;
+
+    /* return need bits, zeroing the bits above that */
+    return val & ((1 << need) - 1);
+  }
+  
+  decode(h)
+  {
+    var bitbuf = this.bitbuf;
+    var left = this.bitcnt;
+    var code = 0;
+    var first = 0;
+    var index = 0;
+    var len = 1;
+    var nextIdx = 1;
+    while (1) 
+    {
+      while (left--) 
+      {
+        code |= (bitbuf & 1) ^ 1;   /* invert code */
+        bitbuf >>= 1;
+        var count = h.count[nextIdx++];
+        if (code < first + count)
+        {
+          /* if length len, return symbol */
+          this.bitbuf = bitbuf;
+          this.bitcnt = (this.bitcnt - len) & 7;
+          return h.symbol[index + (code - first)];
+        }
+        index += count;             /* else update for next length */
+        first += count;
+        first <<= 1;
+        code <<= 1;
+        len++;
+      }
+      left = (PKWAREDCL_MAXBITS + 1) - len;
+      if (left == 0) break;
+      bitbuf = this.inStream[this.inPtr++];
+      if (left > 8) left = 8;
+    }
+    return -9;                          /* ran out of codes */
+  }
+  
   decompress( array_buffer, uncompressed_length )
   {
-    return array_buffer;
+    this.inStream = new Uint8Array( array_buffer, 0, array_buffer.byteLength );
+    this.inPtr = 0;
+    this.outStream = new Uint8Array( uncompressed_length ? uncompressed_length : array_buffer.byteLength * 10 );
+    this.outPtr = 0;
+    
+    var base = [     /* base for length codes */
+        3, 2, 4, 5, 6, 7, 8, 9, 10, 12, 16, 24, 40, 72, 136, 264];
+    var extra = [     /* extra bits for length codes */
+        0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8];
+        
+    /* read header */
+    var lit = this.bits(8);
+    if (lit > 1)
+    {
+      return -1;
+    }
+    var dict = this.bits(8);
+    if (dict < 4 || dict > 6)
+    {
+      return -2;
+    }
+
+    /* decode literals and length/distance pairs */
+    do
+    {
+      if (this.bits(1)) 
+      {
+        /* get length */
+        var symbol = this.decode(PKWAREDCL_LENCODE);
+        var len = base[symbol] + this.bits(extra[symbol]);
+        if (len == 519)
+        {
+          break;              /* end code */
+        }
+
+        /* get distance */
+        symbol = len == 2 ? 2 : dict;
+        var dist = this.decode(PKWAREDCL_DISTCODE) << symbol;
+        dist += this.bits(symbol);
+        dist++;
+        if (this.first && dist > this.next)
+        {
+          return -3;              /* distance too far back */
+        }
+
+        /* copy length bytes from distance bytes back */
+        do 
+        {
+          var to = this.next;
+          var from = to - dist;
+          var copy = PKWAREDCL_MAXWIN;
+          if (this.next < dist) 
+          {
+            from += copy;
+            copy = dist;
+          }
+          copy -= this.next;
+          if (copy > len)
+          {
+            copy = len;
+          }
+          len -= copy;
+          this.next += copy;
+          do 
+          {
+            this.out[to++] = this.out[from++];
+          } while (--copy);
+          
+          if (this.next == PKWAREDCL_MAXWIN) 
+          {
+            for (var i=0; i<this.next; i++)
+            {
+              this.outStream[this.outPtr++] = this.out[i];
+            }
+            this.next = 0;
+            this.first = 0;
+          }
+        } while (len != 0);
+      }
+      else 
+      {
+        /* get literal and write it */
+        var symbol = lit ? this.decode(PKWAREDCL_LITCODE) : this.bits(8);
+        this.out[this.next++] = symbol;
+        if (this.next == PKWAREDCL_MAXWIN) 
+        {
+          for (var i=0; i<this.next; i++)
+          {
+            this.outStream[this.outPtr++] = this.out[i];
+          }
+          this.next = 0;
+          this.first = 0;
+        }
+      }
+    } while (1);    
+
+    for (var i=0; i<this.next; i++)
+    {
+      this.outStream[this.outPtr++] = this.out[i];
+    }
+    
+    return this.outStream.slice(0,this.outPtr);
   } 
 }
