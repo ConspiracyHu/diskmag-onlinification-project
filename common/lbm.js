@@ -1,5 +1,13 @@
 class LBM
 {
+  static FORM = 0x4D524F46;
+  static CMAP = 0x50414D43;
+  static BMHD = 0x44484d42;
+  static BODY = 0x59444F42;
+  
+  static ILBM = 0x4D424C49;
+  static PBM  = 0x204D4250;
+  
   constructor()
   {
     this.width = 0;
@@ -14,7 +22,14 @@ class LBM
   {
     this.view = new DataView(array_buffer, 0, array_buffer.length);
     this.ptr = 0;
+    
     this.readChunk();
+    
+    if (this.isPlanar)
+    {
+      this.planarToChunky();
+    }
+       
     this.view = null;
   }
   
@@ -38,9 +53,12 @@ class LBM
     {
       case 0x21687865: // exh!
       case 0x21504f43: // exh!
-      case 0x4D524F46: // FORM
+      case LBM.FORM: // FORM
         { 
-          this.ptr += 4; // PBM
+          // ILBM / PBM
+          this.isPlanar = this.view.getUint32( this.ptr, true ) == LBM.ILBM;
+          this.ptr += 4;
+          
           while (true)
           {
             if (!this.readChunk())
@@ -49,7 +67,7 @@ class LBM
             }
           }
         } break;
-      case 0x44484d42: // BMHD
+      case LBM.BMHD: // BMHD
         {
           this.width = this.view.getUint16( this.ptr, false ); this.ptr += 2;
           this.height = this.view.getUint16( this.ptr, false ); this.ptr += 2;
@@ -65,7 +83,7 @@ class LBM
           this.view.getUint16( this.ptr, false ); this.ptr += 2; // page width
           this.view.getUint16( this.ptr, false ); this.ptr += 2; // page height         
         } break;
-      case 0x50414D43: // CMAP
+      case LBM.CMAP: // CMAP
         {
           for (var i=0; i<size/3; i++)
           {
@@ -75,7 +93,7 @@ class LBM
             this.palette[i].b = this.view.getUint8(this.ptr++);
           }
         } break;
-      case 0x59444F42: // BODY
+      case LBM.BODY: // BODY
         {
           if (this.compression == 0)
           {
@@ -121,6 +139,29 @@ class LBM
         } break;
     }
     return true;
+  }
+  
+  planarToChunky()
+  {
+    var planarPixelData = this.pixelData;
+
+    this.pixelData = new Uint8Array(this.width * this.height);
+    var bytesPerPlaneLine = this.width >>> 3;
+    for (var y = 0; y < this.height; y++)
+    {
+      var srcLinePtr = y * bytesPerPlaneLine * this.bitplanes;
+      for (var x = 0; x < this.width; x++)
+      {
+        for (var b = 0; b < this.bitplanes; b++)
+        {
+          var srcBytePtr = srcLinePtr + bytesPerPlaneLine * b;
+          if ( planarPixelData[ srcBytePtr + (x >>> 3) ] & ( 1 << ( 7 - (x & 7) ) ) )
+          {
+            this.pixelData[ x + y * this.width ] |= (1 << b);
+          }
+        }
+      }
+    }
   }
 
   renderCanvas(cb)

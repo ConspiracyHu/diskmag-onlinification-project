@@ -8,6 +8,8 @@ Reverse-engineered from the original source
 
 class Diet
 {
+  static DLZ0 = 0x307A6C64;
+  
   constructor()
   {
     this.bitCount = 0;
@@ -195,7 +197,7 @@ class DietEXE extends Diet
     var tempView = new DataView(array_buffer, 0, array_buffer.byteLength);
     for(var i=0; i<256; i++)
     {
-      if (tempView.getUint32(i,true) == 0x307A6C64) // 'dlz0'
+      if (tempView.getUint32(i,true) == Diet.DLZ0) // 'dlz0'
       {
         return super.decompress( array_buffer.slice( i + 4 + 7, array_buffer.byteLength ) );
       }
