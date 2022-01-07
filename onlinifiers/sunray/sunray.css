@@ -37,6 +37,7 @@
   column-gap: 12px;
   column-width: 306px;
   width: 640px;
+  column-fill: auto;
 }
 #article.mono
 {
