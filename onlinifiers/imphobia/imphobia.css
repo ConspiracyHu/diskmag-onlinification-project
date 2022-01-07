@@ -69,8 +69,13 @@
 {
   padding-top: 99px;
 }
+#container[data-issue="IMPHOBIA12"] #menu-main
+{
+  padding-top: 85px;
+}
 #container[data-issue="IMPHOBIA10"] #menu-main div,
-#container[data-issue="IMPHOBIA11"] #menu-main div
+#container[data-issue="IMPHOBIA11"] #menu-main div,
+#container[data-issue="IMPHOBIA12"] #menu-main div
 {
   height: 26px;
 }
