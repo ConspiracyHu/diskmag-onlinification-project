@@ -145,7 +145,6 @@ class Imphobia extends MagInterface
 
   parseToHTML(str, formats)
   {
-    console.log(str,formats)
     var out = "";
     var xPos = 0;
     var state = new State();
@@ -158,11 +157,14 @@ class Imphobia extends MagInterface
       {
         switch (format.format & 0x0F) // color
         {
-          case 0x0D:
+          case 0x0C:
             out += state.add("color",this.getColor(issue.highlightColor1));
             break;
-          case 0x0E:
+          case 0x0D:
             out += state.add("color",this.getColor(issue.highlightColor2));
+            break;
+          case 0x0E:
+            out += state.add("color",this.getColor(issue.highlightColor3));
             break;
           case 0x0F:
             out += state.remove("color");
@@ -543,6 +545,12 @@ class Imphobia extends MagInterface
         this.files = {};
         
         var view = new DataView(array_buffer, 0, array_buffer.byteLength);
+        if ( view.getUint32( 0x1E, true ) == PKLite.PKLI )
+        {
+          var pklite = new PKLiteEXE();
+          array_buffer = pklite.decompress( array_buffer ).buffer;
+          view = new DataView(array_buffer, 0, array_buffer.byteLength);
+        }
         
         var issue = this.getCurrentIssueInfo();
         
