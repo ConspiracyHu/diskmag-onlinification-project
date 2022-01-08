@@ -49,6 +49,21 @@
   top: 100px;
   line-height: 15px;
 }
+/*
+#container[data-issue="TN70"] #menu-container,
+#container[data-issue="TN71"] #menu-container,
+#container[data-issue="TN72"] #menu-container,
+#container[data-issue="TN73"] #menu-container,
+#container[data-issue="TN74"] #menu-container,
+#container[data-issue="TN75"] #menu-container,
+#container[data-issue="TN76"] #menu-container,
+#container[data-issue="TN77"] #menu-container,
+#container[data-issue="TN78"] #menu-container,
+#container[data-issue="TN79"] #menu-container
+{
+  width: 618px;
+}
+*/
 #article
 {
   height: 392px;
