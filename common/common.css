@@ -67,6 +67,20 @@
 #zoom:hover {
   opacity: 1.0;
 }
+#files {
+  position: fixed;
+  bottom: 10px;
+  left: 10px;
+  color: #737373;
+  list-style: none;
+  font-family: Abel, sans-serif;
+  font-size: 12px;
+}
+#files .name {
+  color: #ccc;
+  font-weight: bold;
+  text-decoration: none;
+}
 #close {
   position: fixed;
   top: 10px;

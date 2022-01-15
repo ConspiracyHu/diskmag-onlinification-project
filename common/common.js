@@ -285,13 +285,34 @@ class MagInterface
   }
 
   // load a file; returns a Promise
+  updateFileStatus(filename,status)
+  {
+    var files = document.querySelector("#files");
+    if (!files)
+    {
+      return;
+    }
+    var file = files.querySelector("li[data-filename='"+filename+"']");
+    if (!file)
+    {
+      file = document.createElement("li");
+      file.setAttribute("data-filename",filename);
+      file.innerHTML = "<a href='#' class='name'></a> <span class='size'></span> <span class='status'></span>";
+      files.insertBefore(file, null);
+    }
+    
+    file.querySelector(".name").innerHTML = filename;
+    file.querySelector(".name").href = this.magDataDir + filename;
+    file.querySelector(".status").innerHTML = status;
+  }
+  
   loadFile( filename, useProgressBar )
   {
     return new Promise((resolve, reject) => {
       this.xhr = new XMLHttpRequest();
       if (useProgressBar)
       {
-        this.xhr.onprogress = function(e)
+        this.xhr.onprogress = (function(e)
         {
           var perc = e.loaded / e.total;
           var loading = document.querySelector("#loading");
@@ -302,25 +323,36 @@ class MagInterface
             loading.setAttribute("id", "loading");
           }
           loading.innerHTML = "Loading ("+(perc*100).toFixed(2)+"%)"
-        }
+          this.updateFileStatus(filename,"Loading: "+(perc*100).toFixed(2)+"%");
+        }).bind(this);
       }
-      this.xhr.onerror = function(e)
+      else
       {
+        this.xhr.onprogress = (function(e)
+        {
+          this.updateFileStatus(filename,"Loading: "+(perc*100).toFixed(2)+"%");
+        }).bind(this);
+      }
+      this.xhr.onerror = (function(e)
+      {
+        this.updateFileStatus(filename,"Error!");
         reject(e);
-      }
-      this.xhr.timeout = function(e)
+      }).bind(this);
+      this.xhr.timeout = (function(e)
       {
+        this.updateFileStatus(filename,"Error: timeout");
         reject(e);
-      }
-      this.xhr.onload = function(e)
+      }).bind(this);
+      this.xhr.onload = (function(e)
       {
+        this.updateFileStatus(filename,"Loaded.");
         this.xhr = null;
         var loading = document.querySelector("#loading");
         if (loading)
         {
           loading.remove();
         }
-        var file = new File([this.response],filename);
+        var file = new File([e.target.response],filename);
       	let blob = file.slice();
       	let file_name = file.name;
     
@@ -332,7 +364,9 @@ class MagInterface
       		resolve( array_buffer );
       	};
       	reader.readAsArrayBuffer(blob);
-      }
+      }).bind(this);
+      this.updateFileStatus(filename,"");      
+
       this.xhr.responseType = "blob";
       this.xhr.open("GET", this.magDataDir + filename);
       this.xhr.send();
