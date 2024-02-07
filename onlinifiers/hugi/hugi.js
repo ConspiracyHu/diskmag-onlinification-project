@@ -775,17 +775,49 @@ class Hugi extends MagInterface
   playMusicTrack(idx)
   {
     var musicFile = this.mods[idx];
-    this.loadFileFromArchive(musicFile)
-      .then(
-        (data  => { this.chiptune.play(data); }).bind(this),
-        (error => { this.chiptune.load(this.magDataDir + "/" + this.getCurrentIssueInfo().editionID + "/" + musicFile.toLowerCase()); }).bind(this)
-      );
+    if (musicFile.substr(-4).toLowerCase() == ".mp3")
+    {
+      var audio = document.querySelector("#hugi-mp3");
+      this.loadFileFromArchive(musicFile)
+        .then(
+          (data  => { 
+            audio.src = "data:audio/mp3;base64,"+ArrayBufferToBase64(data);
+            audio.play();
+          }).bind(this),
+          (error => { 
+            audio.src = this.magDataDir + "/" + this.getCurrentIssueInfo().editionID + "/" + musicFile.toLowerCase();
+            audio.play();
+          }).bind(this)
+        );
+    }
+    else
+    {
+      this.loadFileFromArchive(musicFile)
+        .then(
+          (data  => { this.chiptune.play(data); }).bind(this),
+          (error => { this.chiptune.load(this.magDataDir + "/" + this.getCurrentIssueInfo().editionID + "/" + musicFile.toLowerCase()); }).bind(this)
+        );
+    }
   }
   
   nextMusicTrack()
   {
     this.trackIdx = (this.trackIdx + 1) % this.mods.length;
     this.playMusicTrack(this.trackIdx);
+  }
+  
+  toggleMusic()
+  {
+    var audio = document.querySelector("#hugi-mp3");
+    if (audio.paused) audio.play(); else audio.pause();
+  }
+  
+  destroy()
+  {
+    super.destroy();
+    
+    var audio = document.querySelector("#hugi-mp3");
+    audio.pause();
   }
 
   // ---------------------------------------------------------------------
@@ -808,7 +840,7 @@ class Hugi extends MagInterface
   // return the HTML required by the mag; this will be placed within the resizing container
   generateHTML()
   {
-    return "<div id='article-underlay'></div><div id='theme-contents'></div><ul id='menu-main'></ul><div id='article'></div><div id='article-title'></div><div id='article-image'></div>";
+    return "<div id='article-underlay'></div><div id='theme-contents'></div><ul id='menu-main'></ul><div id='article'></div><div id='article-title'></div><div id='article-image'><audio id='hugi-mp3'/></div>";
   }
 
   // return an object where keys represent css selectors, and the values represent which mode they should be visible in

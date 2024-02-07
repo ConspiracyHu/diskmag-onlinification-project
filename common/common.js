@@ -63,6 +63,12 @@ function ArrayBufferToString(buf)
   return Array.prototype.map.call(new Uint8Array(buf),x=>String.fromCharCode(x)).join('');
 }
 
+function ArrayBufferToBase64(buf) {
+  return btoa(
+    new Uint8Array(buf).reduce((data, byte) => data + String.fromCharCode(byte), '')
+  );
+}
+
 // from https://stackoverflow.com/a/38133146
 function clearStylesheetRules()
 {
@@ -562,10 +568,7 @@ class MagInterface
     {
       music.onclick = (function(e)
       {
-        if (this.chiptune)
-        {
-          this.chiptune.togglePause();
-        }
+        this.toggleMusic();
       }).bind(this)
     }
     
@@ -590,6 +593,14 @@ class MagInterface
   
   nextMusicTrack()
   {
+  }
+  
+  toggleMusic()
+  {
+    if (this.chiptune)
+    {
+      this.chiptune.togglePause();
+    }
   }
   
   destroy()
