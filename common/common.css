@@ -67,6 +67,20 @@
 #zoom:hover {
   opacity: 1.0;
 }
+#toggleMusic {
+  position: fixed;
+  bottom: 10px;
+  right: 40px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  opacity: 0.5;
+  transition: 200ms ease all;
+}
+#toggleMusic:hover {
+  opacity: 1.0;
+}
 #files {
   position: fixed;
   bottom: 10px;
