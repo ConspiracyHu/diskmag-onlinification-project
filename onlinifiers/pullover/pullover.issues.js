@@ -22,7 +22,8 @@ PULLOVER_ISSUES = [
       "PIX2/ANTISOK.COP",
       "PIX2/SCENKOR.COP",
       "PIX2/IFUST.COP"
-    ]
+    ],
+    "music": "RAIL.S3M"
   },
   { "url": "PULLOVER3.EXE", 
     "title": "Pullover #3", 
@@ -47,6 +48,7 @@ PULLOVER_ISSUES = [
       "PIX3/PO3CRED.COP",
       "PIX3/SANDRAB.COP",
       "PIX3/DEMIM.COP"
-    ]
+    ],
+    "music": "PLASBEAC.S3M"
   }
 ];
