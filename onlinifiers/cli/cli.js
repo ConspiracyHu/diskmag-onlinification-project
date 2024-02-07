@@ -407,7 +407,13 @@ class CLi extends MagInterface
                 this.data.fontColors[i].g = data[ofs++] * 4;
                 this.data.fontColors[i].b = data[ofs++] * 4;
               }
+              var modCount = view.getUint16(ofs,true); ofs+=2;
               this.data.mods = [];
+              for(var i=0; i<modCount; i++)
+              {
+                this.data.mods[i] = ArrayBufferToString(data.slice(ofs,ofs+8)).replace(/\0+$/, '');
+                ofs += 8;
+              }
             }
             else
             {
