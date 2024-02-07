@@ -165,6 +165,8 @@ class MagInterface
     this.issueY = 480;
     this.container = "#container";
     this.magDataDir = "./";
+    this.xhr = null;
+    this.chiptune = null;
   }
   
   // The index of the currently viewed issue
@@ -414,6 +416,16 @@ class MagInterface
       this.setWindowTitle(null);
   
       this.loadFile( this.getCurrentIssueInfo().url, true )
+        .then(a=>{ 
+          return new Promise( (function(resolve, reject){
+            import('./external/chiptune/chiptune3.js').then((mod=>{
+              this.chiptune = new mod.ChiptuneJsPlayer();
+              this.chiptune.onInitialized((() => {
+                resolve(a)
+              }).bind(this))
+            }).bind(this))
+          }).bind(this) );
+        })
         .then(a=>{ return this.loadMagIssueData(a); })
         .then(resolve)
         .catch(reject)
@@ -542,6 +554,18 @@ class MagInterface
         this.handleClose();
       }).bind(this)
     }
+    // toggle zoom
+    var music = document.querySelector("#toggleMusic");
+    if (music)
+    {
+      music.onclick = (function(e)
+      {
+        if (this.chiptune)
+        {
+          this.chiptune.togglePause();
+        }
+      }).bind(this)
+    }
     
     // handle back/fwd keys
     window.onpopstate = (function(e)
@@ -572,6 +596,11 @@ class MagInterface
     if (this.xhr)
     {
       this.xhr.abort()
+    }
+    if (this.chiptune)
+    {
+      this.chiptune.stop();
+      this.chiptune = null;
     }
   }
 }

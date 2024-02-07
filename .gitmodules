@@ -1,0 +1,3 @@
+[submodule "common/external/chiptune"]
+	path = common/external/chiptune
+	url = https://github.com/DrSnuggles/chiptune.git

@@ -230,12 +230,14 @@ class Freestyle extends MagInterface
         this.loadImage(FSTOC_BACKGROUND).then(blobUrl=>{
           changeStylesheetRule(this.container,"background","url("+blobUrl+")");
         });
+        
+        this.chiptune.load(this.magDataDir + this.getCurrentIssueInfo().music);
     
         resolve();
       });
     });
   }
-
+  
   // ---------------------------------------------------------------------
   // IMPLEMENT SUPERCLASS
   // ---------------------------------------------------------------------

@@ -13,3 +13,4 @@ as much helpful reverse engineering information as we can.
 
 ## Acknowledgements
 * [uncompress.js](https://github.com/workhorsy/uncompress.js) by Matthew Brennan Jones
+* [chiptune3.js](https://github.com/DrSnuggles/chiptune)
