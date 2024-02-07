@@ -14,7 +14,8 @@ KENDERMAG_ISSUES = [
       "attachmentCount": 8,
       "articleCount": 260
     },
-    "articleOffset": -1
+    "articleOffset": -1,
+    "music": ["KM5_1.MOD","KM5_2.MOD"]
   },
   {
     "url": "KM6.EXE",
@@ -31,7 +32,8 @@ KENDERMAG_ISSUES = [
       "attachmentCount": 7,
       "articleCount": 221
     },
-    "articleOffset": -1
+    "articleOffset": -1,
+    "music": ["KM6_1.MOD","KM6_2.MOD"]
   },
   {
     "url": "KM7.EXE",
@@ -48,7 +50,8 @@ KENDERMAG_ISSUES = [
       "attachmentCount": 5,
       "articleCount": 156
     },
-    "articleOffset": -1
+    "articleOffset": -1,
+    "music": ["KM7_1.MOD","KM7_2.MOD"]
   },
   {
     "url": "KM8.EXE",
@@ -65,7 +68,8 @@ KENDERMAG_ISSUES = [
       "attachmentCount": 9,
       "articleCount": 172
     },
-    "articleOffset": -1
+    "articleOffset": -1,
+    "music": ["KM8_1.MOD","KM8_2.MOD"]
   },
   {
     "url": "KM9.EXE",
@@ -81,7 +85,8 @@ KENDERMAG_ISSUES = [
       "introModCount": 1,
       "attachmentCount": 8,
       "articleCount": 295
-    }
+    },
+    "music": ["KM9_1.MOD","KM9_2.S3M"]
   },
   {
     "url": "KM10.EXE",
@@ -97,7 +102,8 @@ KENDERMAG_ISSUES = [
       "introModCount": 1,
       "attachmentCount": 8,
       "articleCount": 502
-    }
+    },
+    "music": ["KM10_1.MOD","KM10_2.MOD"]
   },
   {
     "url": "KF11.EXE",
@@ -113,7 +119,8 @@ KENDERMAG_ISSUES = [
       "introModCount": 1,
       "attachmentCount": 6,
       "articleCount": 452
-    }
+    },
+    "music": ["KF11_1.MOD","KF11_2.MOD"]
   },
   {
     "url": "KM12.EXE",
@@ -129,7 +136,8 @@ KENDERMAG_ISSUES = [
       "introModCount": 1,
       "attachmentCount": 6,
       "articleCount": 529
-    }
+    },
+    "music": ["KM12_1.MOD","KM12_2.MOD"]
   },
   {
     "url": "KM13.EXE",
@@ -145,7 +153,8 @@ KENDERMAG_ISSUES = [
       "introModCount": 1,
       "attachmentCount": 13,
       "articleCount": 494
-    }
+    },
+    "music": ["KM13_1.MOD","KM13_2.S3M"]
   },
   {
     "url": "KM14.EXE",
@@ -161,7 +170,8 @@ KENDERMAG_ISSUES = [
       "introModCount": 1,
       "attachmentCount": 9,
       "articleCount": 391
-    }
+    },
+    "music": ["KM14_1.S3M","KM14_2.MOD"]
   },
   {
     "url": "KM15.EXE",
@@ -177,7 +187,8 @@ KENDERMAG_ISSUES = [
       "introModCount": 1,
       "attachmentCount": 7,
       "articleCount": 293
-    }
+    },
+    "music": ["KM15_1.S3M","KM15_2.MOD"]
   },
   {
     "url": "KM16.EXE",
@@ -193,7 +204,8 @@ KENDERMAG_ISSUES = [
       "introModCount": 1,
       "attachmentCount": 6,
       "articleCount": 303
-    }
+    },
+    "music": ["KM16_1.S3M","KM16_2.S3M"]
   },
   {
     "url": "KM17.EXE",
@@ -201,7 +213,8 @@ KENDERMAG_ISSUES = [
     "thumbnail": "kendermag17.jpg",
     "date": "November 19, 1997",
 
-    "extendedFooter": true
+    "extendedFooter": true,
+    "music": ["KM17_1.MOD","KM17_2.S3M"]
   },
   {
     "url": "KM18.EXE",
@@ -209,6 +222,7 @@ KENDERMAG_ISSUES = [
     "thumbnail": "kendermag18.jpg",
     "date": "February 25, 1998",
 
-    "extendedFooter": true
+    "extendedFooter": true,
+    "music": ["KM18_1.MOD","KM18_2.MOD"]
   }
 ];

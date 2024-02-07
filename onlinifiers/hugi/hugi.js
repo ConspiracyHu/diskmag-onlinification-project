@@ -745,6 +745,15 @@ class Hugi extends MagInterface
       this.config = {};
       this.loadASCIIStringFromArchive("config.txt").then(str=>{
         this.config = this.parseToTagTree( str );
+        
+        this.mods = [];
+        this.config.filter(s=>s.tagName=="scheme").forEach(s=>{
+          s.children.filter(s=>s.tagName=="song").forEach(t=>{
+            this.mods.push(t.file);
+          })
+        })
+        this.trackIdx = 0;
+        this.playMusicTrack(this.trackIdx);
 
         var parameters = this.config.find(s=>s.tagName=="parameters");
 
@@ -761,6 +770,22 @@ class Hugi extends MagInterface
         resolve();
       })
     });
+  }
+
+  playMusicTrack(idx)
+  {
+    var musicFile = this.mods[idx];
+    this.loadFileFromArchive(musicFile)
+      .then(
+        (data  => { this.chiptune.play(data); }).bind(this),
+        (error => { this.chiptune.load(this.magDataDir + "/" + this.getCurrentIssueInfo().editionID + "/" + musicFile.toLowerCase()); }).bind(this)
+      );
+  }
+  
+  nextMusicTrack()
+  {
+    this.trackIdx = (this.trackIdx + 1) % this.mods.length;
+    this.playMusicTrack(this.trackIdx);
   }
 
   // ---------------------------------------------------------------------

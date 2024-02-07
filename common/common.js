@@ -242,6 +242,8 @@ class MagInterface
     if (container) container.style.display = mode != "selector" ? null : "none";
     var zoom = document.querySelector("#zoom");
     if (zoom) zoom.style.display = mode != "selector" ? null : "none";
+    var music = document.querySelector("#toggleMusic");
+    if (music) music.style.display = mode != "selector" ? null : "none";
 
     var modes = this.getModes();
     Object.entries(modes).forEach(kvp=>{
@@ -584,6 +586,10 @@ class MagInterface
     {
       return;
     }
+  }
+  
+  nextMusicTrack()
+  {
   }
   
   destroy()

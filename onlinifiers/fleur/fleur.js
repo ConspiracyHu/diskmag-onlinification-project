@@ -157,6 +157,9 @@ class Fleur extends MagInterface
   loadConfig(cb)
   {
     return new Promise((resolve,reject)=>{
+      
+      this.trackIdx = 0;
+      this.playMusicTrack(this.trackIdx);
     
       if (this.menuBackground)
       {
@@ -167,6 +170,22 @@ class Fleur extends MagInterface
     
       resolve();
     });
+  }
+
+  playMusicTrack(idx)
+  {
+    var musicFile = this.getCurrentIssueInfo().music[idx];
+    this.loadFileFromArchive(musicFile)
+      .then(
+        (data  => { this.chiptune.play(data); }).bind(this),
+        (error => { this.chiptune.load(this.magDataDir + "/" + this.getCurrentIssueInfo().editionID + "/" + musicFile); }).bind(this)
+      );
+  }
+  
+  nextMusicTrack()
+  {
+    this.trackIdx = (this.trackIdx + 1) % this.getCurrentIssueInfo().music.length;
+    this.playMusicTrack(this.trackIdx);
   }
 
   // ---------------------------------------------------------------------
@@ -209,6 +228,11 @@ class Fleur extends MagInterface
   {
     return new Promise( ( (resolve, reject) => {
       var entry = this.tocEntries.find(s=>s.name.toLowerCase()==id.toLowerCase());
+      if (!entry)
+      {
+        reject();
+        return;
+      }
       
       var unpacker = null;
       if (this.unpacker == "lzexe")
