@@ -314,7 +314,6 @@ class MagInterface
       {
         this.xhr.onprogress = (function(e)
         {
-          var perc = e.loaded / e.total;
           var loading = document.querySelector("#loading");
           if (!loading)
           {
@@ -322,15 +321,36 @@ class MagInterface
             document.body.insertBefore(loading,null);
             loading.setAttribute("id", "loading");
           }
-          loading.innerHTML = "Loading ("+(perc*100).toFixed(2)+"%)"
-          this.updateFileStatus(filename,"Loading: "+(perc*100).toFixed(2)+"%");
+
+          var msg = "";
+          if (e.total > 0)
+          {
+            var perc = e.loaded / e.total;
+            msg = (perc*100).toFixed(2)+"%";
+          }
+          else
+          {
+            msg = (e.loaded/1024/1024).toFixed(2)+"MB";
+          }
+          loading.innerHTML = "Loading ("+msg+")";
+          this.updateFileStatus(filename,"Loading: "+msg);
         }).bind(this);
       }
       else
       {
         this.xhr.onprogress = (function(e)
         {
-          this.updateFileStatus(filename,"Loading: "+(perc*100).toFixed(2)+"%");
+          var msg = "";
+          if (e.total > 0)
+          {
+            var perc = e.loaded / e.total;
+            msg = (perc*100).toFixed(2)+"%";
+          }
+          else
+          {
+            msg = (e.loaded/1024/1024).toFixed(2)+"MB";
+          }
+          this.updateFileStatus(filename,"Loading: "+msg);
         }).bind(this);
       }
       this.xhr.onerror = (function(e)
