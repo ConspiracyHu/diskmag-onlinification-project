@@ -407,6 +407,10 @@ class TerrorNews extends MagInterface
             }
           });
 
+          this.loadInternalFile("TN_1.UCM").then(data=>{
+            this.chiptune.play(data);
+          });
+          
           resolve();
 
         });
@@ -548,8 +552,11 @@ class TerrorNews extends MagInterface
               // next dwords are:
               // CG logo (LOGO.UCM)
               // title screen (NYITOKEP.UCM)
-              // music 1 (TN_1.S3M)
-              // music 2 (TN_2.S3M)
+
+              var music1Ofs = exeUnpView.getUint32(issue.dataSeg+20,true);
+              this.files["TN_1.UCM"] = {"offset":ovlStart + music1Ofs,"packer":"PKWARE","source":"overlay"};
+              var music1Ofs = exeUnpView.getUint32(issue.dataSeg+24,true);
+              this.files["TN_2.UCM"] = {"offset":ovlStart + music1Ofs,"packer":"PKWARE","source":"overlay"};
 
               this.files["TAB.UCM"] = {"offset":issue.tocLUTOfs,"size":issue.articleCount*4,"source":"exe"};
 
