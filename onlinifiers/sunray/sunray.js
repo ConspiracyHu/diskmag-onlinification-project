@@ -19,7 +19,7 @@ class Sunray extends MagInterface
       {
         case "<":
           {
-            if (str.slice(x+1,x+3) == "sl" || str.slice(x+1,x+3) == "ss")
+            if (str.slice(x+1,x+3) == "sl")
             {
               // start link
               var link = str.slice(x+3,str.indexOf(">",x));
@@ -27,6 +27,21 @@ class Sunray extends MagInterface
               var aAttrib = {};
               aAttrib["href"] = "#/edition="+this.getEditionID()+"/article="+encodeURIComponent(link)
               aAttrib["data-url"] = link;
+              aAttrib["data-type"] = "link";
+          
+              out += "<a "+Object.entries(aAttrib).map(i=>{ return `${i[0]}="${i[1]}"`; }).join(" ")+">";
+              
+              x += 3 + link.length;
+            }
+            else if (str.slice(x+1,x+3) == "ss")
+            {
+              // start link
+              var link = str.slice(x+3,str.indexOf(">",x));
+
+              var aAttrib = {};
+              aAttrib["href"] = location.href;
+              aAttrib["data-url"] = link;
+              aAttrib["data-type"] = "music";
           
               out += "<a "+Object.entries(aAttrib).map(i=>{ return `${i[0]}="${i[1]}"`; }).join(" ")+">";
               
@@ -139,10 +154,17 @@ class Sunray extends MagInterface
           e.stopPropagation();
 
           var url = i.getAttribute("data-url");
+          var type = i.getAttribute("data-type");
 
-          this.pushNavigationState({"edition":this.getEditionID(),"article":url})
-
-          this.loadArticle( url );
+          if(type == "link")
+          {
+            this.pushNavigationState({"edition":this.getEditionID(),"article":url})
+            this.loadArticle( url );
+          }
+          else if(type == "music")
+          {
+            this.playMusicTrackByFilename(url);
+          }
         };
       });
       
@@ -180,13 +202,37 @@ class Sunray extends MagInterface
       
       // lol how the f did this even work in the original, that file clearly doesnt exist...
       // maybe it discarded the path and only checked for the base name?!
-      this.files["OTHERS/RTS/RTS9.TXT".toLowerCase()] = this.files["OTHERS/RTS9/RTS9.TXT".toLowerCase()];
-
+      this.fileMap["OTHERS/RTS/RTS9.TXT".toLowerCase()] = this.fileMap["OTHERS/RTS9/RTS9.TXT".toLowerCase()];
+      
+      this.trackIdx = 0;
+      this.playMusicTrack(0);
+      
       this.loadImage("BACK.JPG").then(blobUrl=>{
         changeStylesheetRule(this.container,"background","url("+blobUrl+")");
       });
       resolve();
     });
+  }
+
+  playMusicTrack(idx)
+  {
+    var musicFiles = this.files.filter(s=>s.type==3).slice(3); // first 3 are images, tsk-tsk!
+    this.playMusicTrackByFilename(musicFiles[idx].path);
+  }
+
+  playMusicTrackByFilename(filename)
+  {
+    this.loadFileFromArchive(filename)
+      .then(
+        (data  => { this.chiptune.play(data); }).bind(this),
+        (error => { this.chiptune.load(this.magDataDir + "/" + this.getCurrentIssueInfo().editionID + "/" + musicFile); }).bind(this)
+      );
+  }
+  
+  nextMusicTrack()
+  {
+    this.trackIdx = (this.trackIdx + 1) % this.getCurrentIssueInfo().music.length;
+    this.playMusicTrack(this.trackIdx);
   }
 
   // ---------------------------------------------------------------------
@@ -228,10 +274,10 @@ class Sunray extends MagInterface
   loadFileFromArchive( id )
   {
     return new Promise( ( (resolve, reject) => {
-      var file = this.files[id.toLowerCase()];
+      var file = this.fileMap[id.toLowerCase()];
       if (file)
       {
-        resolve( this.files[id.toLowerCase()].data );
+        resolve( this.fileMap[id.toLowerCase()].data );
       }
       else
       {
@@ -266,12 +312,13 @@ class Sunray extends MagInterface
     var fileCount = view.getUint32(ptr,true); ptr += 4;
     for(var i=0; i<fileCount; i++)
     {
-      ptr += 4; // file type?
       var entry = {};
+      entry.type = view.getUint32(ptr,true); ptr += 4;
       entry.length = view.getUint32(ptr,true); ptr += 4;
       entry.path = ArrayBufferToString( array_buffer.slice(ptr,ptr+256) ).replace(/\0+$/,""); ptr += 256;
       entry.data = array_buffer.slice(ptr,ptr+entry.length); ptr += entry.length;
-      this.files[entry.path.toLowerCase()] = entry;
+      this.files.push(entry);
+      this.fileMap[entry.path.toLowerCase()] = entry;
     }
   }
 
@@ -288,7 +335,8 @@ class Sunray extends MagInterface
         this.issueY = 600;
         window.onresize();
         
-        this.files = {};
+        this.fileMap = {};
+        this.files = [];
         
         this.parseDataFile(array_buffer,3);
         
