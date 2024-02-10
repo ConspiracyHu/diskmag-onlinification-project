@@ -774,10 +774,12 @@ class Hugi extends MagInterface
 
   playMusicTrack(idx)
   {
+    var audio = document.querySelector("#hugi-mp3");
+    audio.pause();
+    
     var musicFile = this.mods[idx];
     if (musicFile.substr(-4).toLowerCase() == ".mp3")
     {
-      var audio = document.querySelector("#hugi-mp3");
       this.loadFileFromArchive(musicFile)
         .then(
           (data  => { 
@@ -792,6 +794,7 @@ class Hugi extends MagInterface
     }
     else
     {
+      audio.src = "";
       this.loadFileFromArchive(musicFile)
         .then(
           (data  => { this.chiptune.play(data); }).bind(this),
@@ -809,6 +812,12 @@ class Hugi extends MagInterface
   toggleMusic()
   {
     var audio = document.querySelector("#hugi-mp3");
+    if (audio.src == "")
+    {
+      super.toggleMusic();
+      return;
+    }
+    
     if (audio.paused) audio.play(); else audio.pause();
   }
   
