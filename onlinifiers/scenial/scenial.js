@@ -217,7 +217,7 @@ class Scenial extends MagInterface
 
     for(var i=0; i<menu.children.length; i++)
     {
-      if (!this.toc[i].length)
+      if (i >= this.toc.length || !this.toc[i].length)
       {
         continue;
       }
@@ -301,6 +301,8 @@ class Scenial extends MagInterface
         }
         this.toc.push(entry);
       }
+      
+      this.chiptune.load(this.magDataDir + this.getCurrentIssueInfo().music);
 
       resolve();
     });
