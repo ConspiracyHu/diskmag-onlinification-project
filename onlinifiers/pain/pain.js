@@ -483,12 +483,38 @@ class Pain extends MagInterface
             this.config.get(m[1]).set(m[2],m[3]);
           }
         });
+        
+        this.mods = []
+        for(var i=1; i<99; i++)
+        {
+          var filename = this.config.get("!music").get("file"+i);
+          if (!filename)
+          {
+            break;
+          }
+          this.mods.push(filename);
+        }
+        
+        this.trackIdx = 0;
+        this.playMusicTrack(this.trackIdx);
 
         resolve();
       })
     });
   }
 
+  playMusicTrack(idx)
+  {
+    var musicFile = this.mods[idx];
+    this.chiptune.load(this.magDataDir + "/" + this.getCurrentIssueInfo().url.replace(".dat","") + "/" + musicFile);
+  }
+  
+  nextMusicTrack()
+  {
+    this.trackIdx = (this.trackIdx + 1) % this.mods.length;
+    this.playMusicTrack(this.trackIdx);
+  }
+  
   // ---------------------------------------------------------------------
   // IMPLEMENT SUPERCLASS
   // ---------------------------------------------------------------------
