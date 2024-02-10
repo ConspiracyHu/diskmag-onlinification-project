@@ -30,7 +30,7 @@ IMPHOBIA_ISSUES = [{
       "IMPHOB9/DATA.001",
       "IMPHOB9/DATA.002",
       "IMPHOB9/DATA.003",
-      "IMPHOB9/DATA.004",
+      "IMPHOB9/DATA.004"
     ]
   },
   {
@@ -65,7 +65,7 @@ IMPHOBIA_ISSUES = [{
       "IMPHOB10/DATA.001",
       "IMPHOB10/DATA.002",
       "IMPHOB10/DATA.003",
-      "IMPHOB10/DATA.004",
+      "IMPHOB10/DATA.004"
     ]
   },
   {
@@ -100,7 +100,7 @@ IMPHOBIA_ISSUES = [{
       "IMPHOB11/DATA.001",
       "IMPHOB11/DATA.002",
       "IMPHOB11/DATA.003",
-      "IMPHOB11/DATA.004",
+      "IMPHOB11/DATA.004"
     ]
   },
   {
@@ -135,7 +135,7 @@ IMPHOBIA_ISSUES = [{
       "IMPHOB12/DATA.001",
       "IMPHOB12/DATA.002",
       "IMPHOB12/DATA.003",
-      "IMPHOB12/DATA.004",
+      "IMPHOB12/DATA.004"
     ]
   }
 ];
