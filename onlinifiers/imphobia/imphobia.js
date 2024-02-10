@@ -449,6 +449,8 @@ class Imphobia extends MagInterface
         });
       });
       
+      this.trackIdx = 0;
+      this.playMusicTrack(this.trackIdx);
       
       resolve();
     });
@@ -481,6 +483,18 @@ class Imphobia extends MagInterface
     return false;
   }
 
+  playMusicTrack(idx)
+  {
+    var musicFile = this.getCurrentIssueInfo().music[idx];
+    this.chiptune.load(this.magDataDir + musicFile);
+  }
+  
+  nextMusicTrack()
+  {
+    this.trackIdx = (this.trackIdx + 1) % this.getCurrentIssueInfo().music.length;
+    this.playMusicTrack(this.trackIdx);
+  }
+  
   // ---------------------------------------------------------------------
   // IMPLEMENT SUPERCLASS
   // ---------------------------------------------------------------------
