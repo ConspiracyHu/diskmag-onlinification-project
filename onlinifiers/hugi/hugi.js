@@ -779,7 +779,7 @@ class Hugi extends MagInterface
     this.loadFileFromArchive(musicFile)
       .then(
         (data  => { this.playMusic(data, is_mp3); }).bind(this),
-        (error => { this.playMusic(this.magDataDir + "/" + this.getCurrentIssueInfo().editionID + "/" + musicFile.toLowerCase(), is_mp3); }).bind(this)
+        (error => { this.playMusic(this.getCurrentIssueInfo().editionID + "/" + musicFile.toLowerCase(), is_mp3); }).bind(this)
       );
   }
   

@@ -178,7 +178,7 @@ class Fleur extends MagInterface
     this.loadFileFromArchive(musicFile)
       .then(
         (data  => { this.playMusic(data); }).bind(this),
-        (error => { this.playMusic(this.magDataDir + "/" + this.getCurrentIssueInfo().editionID + "/" + musicFile); }).bind(this)
+        (error => { this.playMusic(this.getCurrentIssueInfo().editionID + "/" + musicFile); }).bind(this)
       );
   }
   

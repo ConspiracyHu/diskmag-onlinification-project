@@ -181,7 +181,7 @@ class Dissonance extends MagInterface
       changeStylesheetRule(this.container,"width",this.issueX+"px");
       changeStylesheetRule(this.container,"height",this.issueY+"px");
 
-      this.playMusic(this.magDataDir + this.getCurrentIssueInfo().music);
+      this.playMusic(this.getCurrentIssueInfo().music);
 
       this.loadImage( "FRAME.GIF" ).then(blobUrl=>{
         changeStylesheetRule(this.container,"background","url("+blobUrl+")");

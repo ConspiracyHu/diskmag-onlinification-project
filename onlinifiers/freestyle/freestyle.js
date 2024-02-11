@@ -231,7 +231,7 @@ class Freestyle extends MagInterface
           changeStylesheetRule(this.container,"background","url("+blobUrl+")");
         });
         
-        this.playMusic(this.magDataDir + this.getCurrentIssueInfo().music);
+        this.playMusic(this.getCurrentIssueInfo().music);
     
         resolve();
       });

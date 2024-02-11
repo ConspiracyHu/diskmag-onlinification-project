@@ -514,8 +514,7 @@ class Pain extends MagInterface
   playMusicTrack(idx)
   {
     var musicFile = this.mods[idx];
-    var url = this.magDataDir + "/" + this.getCurrentIssueInfo().url.replace(".dat","") + "/" + musicFile.toLowerCase()
-    this.playMusic(url);
+    this.playMusic(this.getCurrentIssueInfo().url.replace(".dat","") + "/" + musicFile.toLowerCase());
   }
   
   nextMusicTrack()

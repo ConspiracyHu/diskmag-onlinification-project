@@ -225,7 +225,7 @@ class Sunray extends MagInterface
     this.loadFileFromArchive(filename)
       .then(
         (data  => { this.playMusic(data); }).bind(this),
-        (error => { this.playMusic(this.magDataDir + "/" + this.getCurrentIssueInfo().editionID + "/" + musicFile); }).bind(this)
+        (error => { this.playMusic(this.getCurrentIssueInfo().editionID + "/" + musicFile); }).bind(this)
       );
   }
   

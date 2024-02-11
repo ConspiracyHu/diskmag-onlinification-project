@@ -486,7 +486,7 @@ class Imphobia extends MagInterface
   playMusicTrack(idx)
   {
     var musicFile = this.getCurrentIssueInfo().music[idx];
-    this.playMusic(this.magDataDir + musicFile);
+    this.playMusic(musicFile);
   }
   
   nextMusicTrack()
