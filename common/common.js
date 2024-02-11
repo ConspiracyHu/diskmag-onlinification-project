@@ -600,8 +600,7 @@ class MagInterface
   
   stopMusic()
   {
-    var container = document.querySelector(this.container);
-    var audio = container.querySelector("audio");
+    var audio = document.querySelector(this.container+" audio");
     if (audio)
     {
       audio.pause();      
