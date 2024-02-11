@@ -221,7 +221,7 @@ class Kendermag extends MagInterface
   playMusicTrack(idx)
   {
     var musicFile = this.getCurrentIssueInfo().music[idx];
-    this.chiptune.load(this.magDataDir + musicFile);
+    this.playMusic(this.magDataDir + musicFile);
   }
   
   nextMusicTrack()

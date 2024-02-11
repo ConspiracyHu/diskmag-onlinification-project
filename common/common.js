@@ -173,6 +173,9 @@ class MagInterface
     this.magDataDir = "./";
     this.xhr = null;
     this.chiptune = null;
+    this.musicPaused = true;
+    this.musicDataWaiting = null;
+    this.musicDataWaitingIsMP3 = false;
   }
   
   // The index of the currently viewed issue
@@ -311,7 +314,8 @@ class MagInterface
       files.insertBefore(file, null);
     }
     
-    file.querySelector(".name").innerHTML = filename;
+    var basename = filename.split('/').reverse()[0];
+    file.querySelector(".name").innerHTML = basename;
     file.querySelector(".name").href = this.magDataDir + filename;
     file.querySelector(".status").innerHTML = status;
   }
@@ -408,6 +412,12 @@ class MagInterface
     return new Promise((resolve, reject) => {
       
       this.switchMode("loading");
+      
+      var music = document.querySelector("#toggleMusic");
+      if (music)
+      {
+        music.innerHTML = "&#x1F507;"; // TODO: for now
+      }
     
       var newIdx = this.getIssues().findIndex( s => s.editionID == editionID || s.url == editionID + this.getExtension() )
       if (this.currentIssueIndex == newIdx)
@@ -424,16 +434,6 @@ class MagInterface
       this.setWindowTitle(null);
   
       this.loadFile( this.getCurrentIssueInfo().url, true )
-        .then(a=>{ 
-          return new Promise( (function(resolve, reject){
-            import('./external/chiptune/chiptune3.js').then((mod=>{
-              this.chiptune = new mod.ChiptuneJsPlayer();
-              this.chiptune.onInitialized((() => {
-                resolve(a)
-              }).bind(this))
-            }).bind(this))
-          }).bind(this) );
-        })
         .then(a=>{ return this.loadMagIssueData(a); })
         .then(resolve)
         .catch(reject)
@@ -568,7 +568,14 @@ class MagInterface
     {
       music.onclick = (function(e)
       {
-        this.toggleMusic();
+        if (this.toggleMusic())
+        {
+          music.innerHTML = "&#x1F50A;"; // loud
+        }
+        else
+        {
+          music.innerHTML = "&#x1F507;"; // muted
+        }
       }).bind(this)
     }
     
@@ -591,15 +598,121 @@ class MagInterface
     }
   }
   
+  stopMusic()
+  {
+    var container = document.querySelector(this.container);
+    var audio = container.querySelector("audio");
+    if (audio)
+    {
+      audio.pause();      
+    }  
+    if (this.chiptune)
+    {
+      this.chiptune.stop();
+    }
+  }
+  
+  playMusicInternal(data, is_mp3 = false)
+  {
+    this.stopMusic()
+    
+    if (is_mp3)
+    {
+      var container = document.querySelector(this.container);
+      var audio = container.querySelector("audio");
+      if (!audio)
+      {
+        audio = document.createElement("audio")
+        container.insertBefore( audio, null );
+      }
+      audio.src = "data:audio/mp3;base64,"+ArrayBufferToBase64(data);
+      audio.play();
+      return;
+    }
+    
+    var play = (function(data)
+    {
+      this.chiptune.play(data);
+    }).bind(this)
+    
+    if (!this.chiptune)
+    {
+      import('./external/chiptune/chiptune3.js').then((mod=>{
+        this.chiptune = new mod.ChiptuneJsPlayer();
+        this.chiptune.onInitialized((() => {
+          play(data);
+        }).bind(this))
+      }).bind(this))
+      return;
+    }
+    
+    play(data);      
+  }
+  
+  playMusic(data, is_mp3 = false)
+  {
+    var onDownloaded = (function(data, is_mp3)
+    {
+      var context = new AudioContext();
+      var requiresUserInteraction = context.state == "suspended";
+      context = null;
+    
+      if (requiresUserInteraction)
+      {
+        this.musicDataWaiting = data;
+        this.musicDataWaitingIsMP3 = is_mp3;
+        this.musicPaused = true;
+        return;
+      }
+      
+      this.playMusicInternal(data, is_mp3);
+      this.musicPaused = false;
+    }).bind(this);
+    
+    if (typeof data == "string")
+    {
+      this.loadFile(data).then(byteData=>{ onDownloaded(byteData,data.substr(-4).toLowerCase() == ".mp3"); });
+      return;
+    }
+    onDownloaded(data, is_mp3);
+  }
+  
   nextMusicTrack()
   {
   }
   
+  // returns true if music is now playing, false if it's now stopped
   toggleMusic()
   {
+    if (this.musicDataWaiting)
+    {
+      this.playMusicInternal(this.musicDataWaiting, this.musicDataWaitingIsMP3);
+      this.musicDataWaiting = null; 
+      this.musicDataWaitingIsMP3 = false;
+      this.musicPaused = false;
+      return true;
+    }
+    
+    // TODO: this is a bit of a mess because what if we're supporting both mp3s and mods? deal with this later when track skipping is an option
+    var container = document.querySelector(this.container);
+    var audio = container.querySelector("audio");
+    if (audio)
+    {
+      if (audio.paused)
+      {
+        audio.play();
+        this.musicPaused = false;
+        return true;
+      }
+      audio.pause();
+      this.musicPaused = true;
+      return false;
+    }
     if (this.chiptune)
     {
       this.chiptune.togglePause();
+      this.musicPaused = !this.musicPaused;
+      return !this.musicPaused; // returning pause state not currently supported by chiptune3.js
     }
   }
   
@@ -614,10 +727,7 @@ class MagInterface
     {
       this.xhr.abort()
     }
-    if (this.chiptune)
-    {
-      this.chiptune.stop();
-      this.chiptune = null;
-    }
+    this.stopMusic();
+    this.chiptune = null;
   }
 }

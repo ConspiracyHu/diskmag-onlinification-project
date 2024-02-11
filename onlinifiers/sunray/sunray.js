@@ -224,8 +224,8 @@ class Sunray extends MagInterface
   {
     this.loadFileFromArchive(filename)
       .then(
-        (data  => { this.chiptune.play(data); }).bind(this),
-        (error => { this.chiptune.load(this.magDataDir + "/" + this.getCurrentIssueInfo().editionID + "/" + musicFile); }).bind(this)
+        (data  => { this.playMusic(data); }).bind(this),
+        (error => { this.playMusic(this.magDataDir + "/" + this.getCurrentIssueInfo().editionID + "/" + musicFile); }).bind(this)
       );
   }
   

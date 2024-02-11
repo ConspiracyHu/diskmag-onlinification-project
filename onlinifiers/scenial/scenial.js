@@ -302,7 +302,7 @@ class Scenial extends MagInterface
         this.toc.push(entry);
       }
       
-      this.chiptune.load(this.magDataDir + this.getCurrentIssueInfo().music);
+      this.playMusic(this.magDataDir + this.getCurrentIssueInfo().music);
 
       resolve();
     });

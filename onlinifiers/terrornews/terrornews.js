@@ -291,7 +291,6 @@ class TerrorNews extends MagInterface
     this.state = new State();
     var linesPerMenu = 20;
     this.loadInternalFile("TNLST.UCM").then(unpackedData=>{
-      console.log(unpackedData.byteLength / 32);
       for(var i=0; i<issue.visibleArticleCount; i++)
       {
         (function(){
@@ -408,7 +407,7 @@ class TerrorNews extends MagInterface
           });
 
           this.loadInternalFile("TN_1.UCM").then(data=>{
-            this.chiptune.play(data);
+            this.playMusic(data);
           });
           
           resolve();

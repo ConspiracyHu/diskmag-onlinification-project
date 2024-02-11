@@ -442,7 +442,7 @@ class CLi extends MagInterface
             if (this.data.mods)
             {
               this.loadFileFromArchive( this.data.mods[0] ).then((data)=>{
-                this.chiptune.play(data);
+                this.playMusic(data);
               });
             }
 

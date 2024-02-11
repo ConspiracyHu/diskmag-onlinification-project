@@ -127,7 +127,8 @@ class Pullover extends MagInterface
         changeStylesheetRule(this.container,"background","url("+blobUrl+")");
         resolve();
       });
-      this.chiptune.load(this.magDataDir + this.getCurrentIssueInfo().music);
+      this.playMusic(this.magDataDir + this.getCurrentIssueInfo().music);
+      
       issue.backgrounds.forEach((fn,idx)=>{
         this.loadImage(fn).then(blobUrl=>{
           changeStylesheetRule("#article[data-bg=\""+idx+"\"]","background","url("+blobUrl+")");

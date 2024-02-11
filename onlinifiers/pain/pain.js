@@ -513,30 +513,9 @@ class Pain extends MagInterface
 
   playMusicTrack(idx)
   {
-    var audio = document.querySelector("#pain-mp3");
-    audio.pause();
-    
     var musicFile = this.mods[idx];
     var url = this.magDataDir + "/" + this.getCurrentIssueInfo().url.replace(".dat","") + "/" + musicFile.toLowerCase()
-    if (musicFile.substr(-4).toLowerCase() == ".mp3")
-    {
-      this.loadFileFromArchive(musicFile)
-        .then(
-          (data  => { 
-            audio.src = "data:audio/mp3;base64,"+ArrayBufferToBase64(data);
-            audio.play();
-          }).bind(this),
-          (error => { 
-            audio.src = url;
-            audio.play();
-          }).bind(this)
-        );
-    }
-    else
-    {
-      audio.src = "";
-      this.chiptune.load(url);
-    }
+    this.playMusic(url);
   }
   
   nextMusicTrack()
@@ -545,27 +524,6 @@ class Pain extends MagInterface
     this.playMusicTrack(this.trackIdx);
   }
   
-  toggleMusic()
-  {
-    var audio = document.querySelector("#pain-mp3");
-    if (audio.src == "")
-    {
-      super.toggleMusic();
-      return;
-    }
-    
-    if (audio.paused) audio.play(); else audio.pause();
-  }
-  
-  
-  destroy()
-  {
-    super.destroy();
-    
-    var audio = document.querySelector("#pain-mp3");
-    audio.pause();
-  }
-
   // ---------------------------------------------------------------------
   // IMPLEMENT SUPERCLASS
   // ---------------------------------------------------------------------
@@ -586,7 +544,7 @@ class Pain extends MagInterface
   // return the HTML required by the mag; this will be placed within the resizing container
   generateHTML()
   {
-    return "<ul id='menu-main'></ul><div id='menu-container'></div><ul id='menu-topic'></ul><div id='top-bar'><div id='article-title'></div></div><div id='article'></div><audio id='pain-mp3'/>";
+    return "<ul id='menu-main'></ul><div id='menu-container'></div><ul id='menu-topic'></ul><div id='top-bar'><div id='article-title'></div></div><div id='article'></div>";
   }
 
   handleMagNavigationState(stateObj)
