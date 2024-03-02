@@ -568,14 +568,8 @@ class MagInterface
     {
       music.onclick = (function(e)
       {
-        if (this.toggleMusic())
-        {
-          music.innerHTML = "&#x1F50A;"; // loud
-        }
-        else
-        {
-          music.innerHTML = "&#x1F507;"; // muted
-        }
+        this.toggleMusic();
+        this.updateMusicIcon();
       }).bind(this)
     }
     
@@ -595,6 +589,23 @@ class MagInterface
     if (this.handleUrlHash())
     {
       return;
+    }
+  }
+  
+  updateMusicIcon()
+  {
+    var music = document.querySelector("#toggleMusic");
+    if (!music)
+    {
+      return;
+    }
+    if (!this.musicPaused)
+    {
+      music.innerHTML = "&#x1F50A;"; // loud
+    }
+    else
+    {
+      music.innerHTML = "&#x1F507;"; // muted
     }
   }
   
@@ -652,18 +663,28 @@ class MagInterface
   {
     var onDownloaded = (function(data, is_mp3)
     {
-      var context = new AudioContext();
-      var requiresUserInteraction = context.state == "suspended";
-      context = null;
-    
+      this.testAudioContext = new AudioContext();
+      var requiresUserInteraction = this.testAudioContext.state == "suspended";
       if (requiresUserInteraction)
       {
+        this.testAudioContext.onstatechange = () => {
+          if (this.testAudioContext.state != "suspended" && this.musicDataWaiting != null)
+          {
+            this.playMusicInternal(this.musicDataWaiting, this.musicDataWaitingIsMP3);
+            this.musicDataWaiting = null; 
+            this.musicDataWaitingIsMP3 = false;
+            this.musicPaused = false;
+            this.testAudioContext = null;
+            this.updateMusicIcon();
+          }
+        }
         this.musicDataWaiting = data;
         this.musicDataWaitingIsMP3 = is_mp3;
         this.musicPaused = true;
         return;
       }
       
+      this.testAudioContext = null;
       this.playMusicInternal(data, is_mp3);
       this.musicPaused = false;
     }).bind(this);
