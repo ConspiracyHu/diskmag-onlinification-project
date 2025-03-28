@@ -106,6 +106,7 @@ class TerrorNews extends MagInterface
 
   parseToHTML(str,_x,_y,parent)
   {
+    var issue = this.getCurrentIssueInfo();
     var out = "";
     var xPos = 0;
     for(var i=0; i<str.length; i++)
@@ -114,10 +115,16 @@ class TerrorNews extends MagInterface
       {
         case "\x1A": // end article
           return out;
+        case "\x01": // reset colour
+          out += this.state.remove("color");
+          break;
+        case "\x02": // change colour
+          out += this.state.add("color",this.getColor(250));
+          break;
         case "\xAB": // change colour
           out += this.state.add("color",this.getColor(73));
           break;
-        case "\xAC": // change colour
+        case "\xAC": // reset colour
           out += this.state.remove("color");
           break;
         case "\xAD": // change colour
@@ -150,7 +157,68 @@ class TerrorNews extends MagInterface
     return out;
   }
 
-  loadArticle(articleidx)
+  loadArticleOld(articleidx)
+  {
+    var issue = this.getCurrentIssueInfo();
+    var dataSegOfs = this.dataSeg + issue.tocOfs;
+    var articleTitleLength = 32;
+    var articleRecordLength = articleTitleLength + (issue.format == 5 ? 12 : 10);
+    var recordStart = dataSegOfs + articleidx*articleRecordLength;
+    
+    var articleType = this.exeUnpView.getUint8(recordStart+articleTitleLength+1);
+    var articleOfs = this.exeUnpView.getUint32(recordStart+articleTitleLength+2,true);
+    var articleLen = this.exeUnpView.getUint32(recordStart+articleTitleLength+6,true);
+
+    var unpackedData = new PKWAREDCL().decompress(this.fullFile.slice(this.ovlStart+articleOfs, this.ovlStart+articleOfs+articleLen));
+
+    if (articleType == 2) // image
+    {
+        this.switchMode("article-image");
+
+        var article = document.querySelector("#article-image");
+        article.innerHTML = "";
+
+        try
+        {
+          var image = unpackedData.byteLength == TNRawFullscreenImage.SIZE ? new TNRawFullscreenImage() : new PCX();
+          image.load(unpackedData.buffer);
+          image.renderCanvas(function(blobUrl){
+            article.innerHTML = "<img src='"+blobUrl+"'/>";
+          });
+        }
+        catch(e)
+        {
+          console.log("Error loading PCX #"+articleidx+": "+e);
+        }
+
+    }
+    else
+    {
+      this.switchMode("article");
+
+      var article = document.querySelector("#article");
+
+      article.innerHTML = "";
+
+      var str = ArrayBufferToString(unpackedData.buffer);
+
+      var out = "";
+      this.state = new State();
+      str.split("\r\n").forEach((i,idx)=>{
+        var parsed = this.parseToHTML(i,0,idx,article);
+        out += parsed + "\n";
+        if (issue.format <= 5)
+        {
+          out += this.state.remove("color");
+        }
+      });
+      article.innerHTML = out;
+
+      article.scrollTo(0,0);
+    }
+  }
+  
+  loadArticleNew(articleidx)
   {
     var issue = this.getCurrentIssueInfo();
     var articleOfs = this.articleOfs[ articleidx ];
@@ -202,10 +270,35 @@ class TerrorNews extends MagInterface
     });
   }
 
-  loadCELImage(index, transparentColor)
+  loadArticle(articleidx)
+  {
+    var issue = this.getCurrentIssueInfo();
+    
+    switch(issue.format)
+    {
+      case 4:
+      case 5:
+        {
+          this.loadArticleOld(articleidx);
+        }
+        break;
+      case 10:
+      case 20:
+        {
+          this.loadArticleNew(articleidx);
+        }
+        break;
+    }
+  }
+  loadCELImage(filename, transparentColor)
   {
     return new Promise((resolve,reject)=>{
-      this.loadInternalFile("CELS.UCZ",this.inlineImages[index]).then(unpackedData=>{
+      if (!this.inlineImages || !this.inlineImages[filename])
+      {
+        reject("Inline image not found: "+filename);
+        return;
+      }
+      this.loadInternalFile("CELS.UCZ",this.inlineImages[filename]).then(unpackedData=>{
         var view = new DataView( unpackedData.buffer, 0, unpackedData.buffer.byteLength );
 
         var sig = view.getUint16( 0, true );
@@ -290,51 +383,95 @@ class TerrorNews extends MagInterface
     var issue = this.getCurrentIssueInfo();
     this.state = new State();
     var linesPerMenu = 20;
-    this.loadInternalFile("TNLST.UCM").then(unpackedData=>{
-      for(var i=0; i<issue.visibleArticleCount; i++)
-      {
-        (function(){
-          var li = document.createElement("li")
 
-          var articleTitleLength = 31;
-          var articleMeta = 2;
-          var articleIsValid = false;
-          switch(issue.format)
+    switch(issue.format)
+    {
+      case 4:
+      case 5:
+        {
+          var dataSegOfs = this.dataSeg + issue.tocOfs;
+          for(var i=0; i<500; i++)
           {
-            case 10:
-              articleTitleLength = 31;
-              articleMeta = 2;
-              articleIsValid = this.articleOfs[ i ] != 0; // article is valid if the offset is nonzero (there's a 2-byte "TN" header that makes the first article valid)
-              break;
-            case 20:
-              articleTitleLength = 31;
-              articleMeta = 1;
-              articleIsValid = unpackedData[ i * (articleTitleLength + articleMeta) + articleTitleLength ] != 0; // article is valid if meta byte is nonzero
-              break;
-          }
-                 
-          var articleRecordLength = articleTitleLength + articleMeta;
-          var title = ArrayBufferToString( unpackedData.slice( i*articleRecordLength, i*articleRecordLength+articleTitleLength ) );
+            if (function(){
+              var articleTitleLength = 32;
+              var articleRecordLength = articleTitleLength + (issue.format == 5 ? 12 : 10);
+              
+              var recordStart = dataSegOfs + i*articleRecordLength;
+              var title = ArrayBufferToString( this.exeUnpData.slice( recordStart, recordStart + articleTitleLength ) );
+              if (title == "\x1A".repeat(articleTitleLength-1)+"\0")
+              {
+                return true;
+              }
+              var li = document.createElement("li")
+              li.innerHTML = this.parseToHTML(title, Math.floor(i / linesPerMenu) * 315, i % linesPerMenu, menuContainer);
+              menu.insertBefore( li, null );
+              if (this.exeUnpData[recordStart + articleTitleLength + 1] != 0)
+              {
+                li.setAttribute("data-idx",i);
+                li.onclick = (function(e)
+                {
+                  var idx = li.getAttribute("data-idx");
 
-          li.innerHTML = this.parseToHTML(title, Math.floor(i / linesPerMenu) * 315, i % linesPerMenu, menuContainer);
-          menu.insertBefore( li, null );
-          if (articleIsValid)
+                  this.pushNavigationState({"edition":this.getEditionID(),"article":idx})
+
+                  this.loadArticleOld(idx);
+
+                  e.stopPropagation();
+                }).bind(this);
+              }
+            }.bind(this)()) break;
+          }
+        }
+        break;
+      case 10:
+      case 20:
+        this.loadInternalFile("TNLST.UCM").then(unpackedData=>{
+          for(var i=0; i<issue.visibleArticleCount; i++)
           {
-            li.setAttribute("data-idx",i);
-            li.onclick = (function(e)
-            {
-              var idx = li.getAttribute("data-idx");
+            (function(){
+              var li = document.createElement("li")
 
-              this.pushNavigationState({"edition":this.getEditionID(),"article":idx})
+              var articleTitleLength = 31;
+              var articleMeta = 2;
+              var articleIsValid = false;
+              switch(issue.format)
+              {
+                case 10:
+                  articleTitleLength = 31;
+                  articleMeta = 2;
+                  articleIsValid = this.articleOfs[ i ] != 0; // article is valid if the offset is nonzero (there's a 2-byte "TN" header that makes the first article valid)
+                  break;
+                case 20:
+                  articleTitleLength = 31;
+                  articleMeta = 1;
+                  articleIsValid = unpackedData[ i * (articleTitleLength + articleMeta) + articleTitleLength ] != 0; // article is valid if meta byte is nonzero
+                  break;
+              }
+                     
+              var articleRecordLength = articleTitleLength + articleMeta;
+              var title = ArrayBufferToString( unpackedData.slice( i*articleRecordLength, i*articleRecordLength+articleTitleLength ) );
 
-              this.loadArticle(idx);
+              li.innerHTML = this.parseToHTML(title, Math.floor(i / linesPerMenu) * 315, i % linesPerMenu, menuContainer);
+              menu.insertBefore( li, null );
+              if (articleIsValid)
+              {
+                li.setAttribute("data-idx",i);
+                li.onclick = (function(e)
+                {
+                  var idx = li.getAttribute("data-idx");
 
-              e.stopPropagation();
-            }).bind(this);
-          }
-        }).bind(this)();
-      };
-    });
+                  this.pushNavigationState({"edition":this.getEditionID(),"article":idx})
+
+                  this.loadArticle(idx);
+
+                  e.stopPropagation();
+                }).bind(this);
+              }
+            }).bind(this)();
+          };
+        });
+        break;
+    }
 
     if (first)
     {
@@ -351,49 +488,38 @@ class TerrorNews extends MagInterface
 
       var issue = this.getCurrentIssueInfo();
 
-      this.loadInternalFile("TAB.UCM").then(data=>{
-        var view = new DataView(data.buffer, 0, data.buffer.byteLength);
-
-        this.articleOfs = [];
-        for(var i=0; i < data.buffer.byteLength / 4; i++)
-        {
-          var ofs = view.getUint32( i * 4, true );
-          this.articleOfs.push(ofs);
-        }
-
-        this.loadInternalFile("CELTAB.UCM").then(data=>{
-          var view = new DataView(data.buffer, 0, data.buffer.byteLength);
-
-          this.inlineImages = {}
-          var ptr = 0;
-          switch(issue.format)
-          {
-            case 10:
-              for(var i=0; i < data.buffer.byteLength / 16; i++)
-              {
-                var name = ArrayBufferToString( data.buffer.slice(ptr,ptr+12) ).replace(/[\s\0]+/g,"");
-                this.inlineImages[name] = view.getUint32(ptr+12,true);
-                ptr += 16;
-              }
-              break;
-            case 20:
-              for(var i=0; i < data.buffer.byteLength / 12; i++)
-              {
-                var name = ArrayBufferToString( data.buffer.slice(ptr,ptr+8) ).replace(/[\s\0]+/g,"");
-                this.inlineImages[name+".CEL"] = view.getUint32(ptr+8,true);
-                ptr += 12;
-              }
-              break;            
-          }
-
+      this.loadTOC().then(data=>{
+        this.loadCELTable().then(data=>{
           this.loadInternalFile("MENU.UCM").then(data=>{
             try
             {
-              var image = data.byteLength == TNRawFullscreenImage.SIZE ?  new TNRawFullscreenImage() : new PCX();
+              var image = null;
+              if (ArrayBufferToString( data.buffer.slice(0,4) ) == "FORM")
+              {
+                image = new LBM();
+              }
+              else if (data.byteLength == TNRawFullscreenImage.SIZE)
+              {
+                image = new TNRawFullscreenImage();
+              }
+              else 
+              {
+                image = new PCX();
+              }
               image.load(data.buffer);
               this.palette = image.palette;
-              changeStylesheetRule("#article,#menu-main","color",this.getColor(4));
-              changeStylesheetRule("#menu-main li","text-shadow","2px 2px 0px " + this.getColor(7));
+              if (issue.textPalette)
+              {
+                changeStylesheetRule("#article,#menu-main","color",this.getColor(issue.textPalette));
+              }
+              else
+              {
+                changeStylesheetRule("#article,#menu-main","color",this.getColor(4));
+                if (issue.format > 5)
+                {
+                  changeStylesheetRule("#menu-main li","text-shadow","2px 2px 0px " + this.getColor(7));
+                }
+              }
 
               image.renderCanvas(blobUrl=>{
                 changeStylesheetRule(this.container,"background","url("+blobUrl+")");
@@ -401,7 +527,7 @@ class TerrorNews extends MagInterface
             }
             catch(e)
             {
-              reject("Error loading interface PCX: " + e);
+              reject("Error loading interface image: " + e);
               return;
             }
           });
@@ -415,6 +541,86 @@ class TerrorNews extends MagInterface
         });
       });
     });
+  }
+  
+  loadTOC()
+  {
+    return new Promise((resolve,reject)=>{
+      var issue = this.getCurrentIssueInfo();
+      switch(issue.format)
+      {
+        case 4:
+        case 5:
+          {           
+            resolve();
+          }
+          break;
+        case 10:
+        case 20:
+          {
+            this.loadInternalFile("TAB.UCM").then(data=>{
+              var view = new DataView(data.buffer, 0, data.buffer.byteLength);
+
+              this.articleOfs = [];
+              for(var i=0; i < data.buffer.byteLength / 4; i++)
+              {
+                var ofs = view.getUint32( i * 4, true );
+                this.articleOfs.push(ofs);
+              }
+            });
+            resolve();
+          }
+          break;
+      }
+      reject();
+    });    
+  }
+
+  loadCELTable()
+  {
+    return new Promise((resolve,reject)=>{
+      var issue = this.getCurrentIssueInfo();
+      switch(issue.format)
+      {
+        case 4:
+        case 5:
+          {
+            resolve();
+          }
+          break;
+        case 10:
+        case 20:
+          {
+            this.loadInternalFile("CELTAB.UCM").then(data=>{
+              var view = new DataView(data.buffer, 0, data.buffer.byteLength);
+
+              this.inlineImages = {}
+              var ptr = 0;
+              switch(issue.format)
+              {
+                case 10:
+                  for(var i=0; i < data.buffer.byteLength / 16; i++)
+                  {
+                    var name = ArrayBufferToString( data.buffer.slice(ptr,ptr+12) ).replace(/[\s\0]+/g,"");
+                    this.inlineImages[name] = view.getUint32(ptr+12,true);
+                    ptr += 16;
+                  }
+                  break;
+                case 20:
+                  for(var i=0; i < data.buffer.byteLength / 12; i++)
+                  {
+                    var name = ArrayBufferToString( data.buffer.slice(ptr,ptr+8) ).replace(/[\s\0]+/g,"");
+                    this.inlineImages[name+".CEL"] = view.getUint32(ptr+8,true);
+                    ptr += 12;
+                  }
+                  break;            
+              }
+              resolve();
+            });
+          }
+          break;
+      }
+    });    
   }
 
   loadInternalFile(filename, offset)
@@ -454,6 +660,7 @@ class TerrorNews extends MagInterface
           {
             unpacked = unpacked.slice(0, file.size);
           }
+          unpacked = new Uint8Array(unpacked)
           break;
       }
       resolve(unpacked);
@@ -499,7 +706,7 @@ class TerrorNews extends MagInterface
   // load a file from the specified identifier; id can be either a filename / url or just a number; returns a Promise
   loadFileFromArchive( id )
   {
-    // NOT USED IN THIS CASE, WE DONT HAVE A SOLID CONCEPT OF A TOC IN KM
+    // NOT USED IN THIS CASE, WE DONT HAVE A SOLID CONCEPT OF A TOC IN TN
     return null;
   }
 
@@ -525,6 +732,65 @@ class TerrorNews extends MagInterface
         this.files = {};
         switch (issue.format)
         {
+          case 4:
+          case 5:
+            {
+              // Format between #450 and #59;
+              // Most offsets are hardwired; compression is done via PKWARE DCL
+
+              if (ArrayBufferToString(array_buffer.slice(0x1E,0x1E+6)) == "PKLITE")
+              {
+                this.exeUnpData = new PKLiteEXE().decompress(array_buffer);
+              }
+              else
+              {
+                this.exeUnpData = new Uint8Array(array_buffer);
+              }
+              this.exeUnpView = new DataView(this.exeUnpData.buffer, 0, this.exeUnpData.buffer.byteLength);
+              
+              this.dataSeg = -1;
+              for(var i=0; i<this.exeUnpView.byteLength; i++)
+              {
+                if ( this.exeUnpView.getInt8(i+0) == 0x54 // T
+                  && this.exeUnpView.getInt8(i+1) == 0x4E // N
+                  && this.exeUnpView.getInt8(i+2) == 0x23 // #
+                  && this.exeUnpView.getInt8(i+5) == 0x2E // .
+                  && this.exeUnpView.getInt8(i+6) == 0x45 // E
+                  && this.exeUnpView.getInt8(i+7) == 0x58 // X
+                  && this.exeUnpView.getInt8(i+8) == 0x45 // E
+                  )
+                {
+                  this.dataSeg = i;
+                  break;
+                }
+              }
+              if (this.dataSeg == -1)
+              {
+                reject("Data segment not found!");
+                return;
+              }              
+              // dataseg 1st dword = overlay negative offset
+
+              var ofsList = this.dataSeg + issue.dataTableOfs;
+              var ovlOfs = this.exeUnpView.getInt32(ofsList,true);
+              this.ovlStart = array_buffer.byteLength + ovlOfs; // ovlOfs is negative
+              
+              // [SKIP] dataseg 2nd dword = title screen (NYITOKEP.UCM)
+
+              // [SKIP] dataseg 3rd+4th dwords = music
+              var music1Ofs = this.exeUnpView.getUint32(ofsList+8,true);
+              this.files["TN_1.UCM"] = {"offset":this.ovlStart + music1Ofs,"packer":"PKWARE","source":"overlay"};
+              var music2Ofs = this.exeUnpView.getUint32(ofsList+12,true);
+              this.files["TN_2.UCM"] = {"offset":this.ovlStart + music1Ofs,"packer":"PKWARE","source":"overlay"};
+
+              // [SKIP] dataseg 5th dword = CG logo (LOGO.UCM)
+
+              // MENU.UCM
+              var interfaceOfs = this.exeUnpView.getUint32(ofsList+20,true);
+              this.files["MENU.UCM"] = {"offset":this.ovlStart + interfaceOfs,"packer":"none","source":"overlay"};
+              
+            } 
+            break;
           case 10:
             {
               // Format between #60 and #69;
@@ -554,8 +820,8 @@ class TerrorNews extends MagInterface
 
               var music1Ofs = exeUnpView.getUint32(issue.dataSeg+20,true);
               this.files["TN_1.UCM"] = {"offset":ovlStart + music1Ofs,"packer":"PKWARE","source":"overlay"};
-              var music1Ofs = exeUnpView.getUint32(issue.dataSeg+24,true);
-              this.files["TN_2.UCM"] = {"offset":ovlStart + music1Ofs,"packer":"PKWARE","source":"overlay"};
+              var music2Ofs = exeUnpView.getUint32(issue.dataSeg+24,true);
+              this.files["TN_2.UCM"] = {"offset":ovlStart + music2Ofs,"packer":"PKWARE","source":"overlay"};
 
               this.files["TAB.UCM"] = {"offset":issue.tocLUTOfs,"size":issue.articleCount*4,"source":"exe"};
 

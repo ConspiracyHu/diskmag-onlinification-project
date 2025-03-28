@@ -8,6 +8,46 @@
   font-display: swap;
 }
 
+@font-face 
+{
+  font-family: 'Terror News Diskmag 50-52';
+  src: url('TerrorNewsDiskmag50-52.woff2') format('woff2'),
+      url('TerrorNewsDiskmag50-52.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face 
+{
+  font-family: 'Terror News Diskmag 53-54';
+  src: url('TerrorNewsDiskmag53-54.woff2') format('woff2'),
+      url('TerrorNewsDiskmag53-54.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face 
+{
+  font-family: 'Terror News Diskmag 56-57';
+  src: url('TerrorNewsDiskmag56-57.woff2') format('woff2'),
+      url('TerrorNewsDiskmag56-57.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face 
+{
+  font-family: 'Terror News Diskmag 58-59';
+  src: url('TerrorNewsDiskmag58-59.woff2') format('woff2'),
+      url('TerrorNewsDiskmag58-59.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 #menu-main,
 #menu-container,
 #article
@@ -49,21 +89,56 @@
   top: 100px;
   line-height: 15px;
 }
-/*
-#container[data-issue="TN70"] #menu-container,
-#container[data-issue="TN71"] #menu-container,
-#container[data-issue="TN72"] #menu-container,
-#container[data-issue="TN73"] #menu-container,
-#container[data-issue="TN74"] #menu-container,
-#container[data-issue="TN75"] #menu-container,
-#container[data-issue="TN76"] #menu-container,
-#container[data-issue="TN77"] #menu-container,
-#container[data-issue="TN78"] #menu-container,
-#container[data-issue="TN79"] #menu-container
+
+#container[data-issue="TN50"] *,
+#container[data-issue="TN51"] *,
+#container[data-issue="TN52"] *,
+#container[data-issue="TN55"] *
 {
-  width: 618px;
+  font-family: "Terror News Diskmag 50-52", monospace;
 }
-*/
+#container[data-issue="TN53"] *,
+#container[data-issue="TN54"] *
+{
+  font-family: "Terror News Diskmag 53-54", monospace;
+}
+#container[data-issue="TN56"] *,
+#container[data-issue="TN57"] *
+{
+  font-family: "Terror News Diskmag 56-57", monospace;
+}
+#container[data-issue="TN58"] *,
+#container[data-issue="TN59"] *
+{
+  font-family: "Terror News Diskmag 58-59", monospace;
+}
+#container[data-issue="TN50"] #menu-main,
+#container[data-issue="TN51"] #menu-main,
+#container[data-issue="TN52"] #menu-main,
+#container[data-issue="TN53"] #menu-main,
+#container[data-issue="TN54"] #menu-main,
+#container[data-issue="TN55"] #menu-main,
+#container[data-issue="TN56"] #menu-main,
+#container[data-issue="TN57"] #menu-main,
+#container[data-issue="TN58"] #menu-main,
+#container[data-issue="TN59"] #menu-main {
+  letter-spacing: 0px;
+}
+#container[data-issue="TN50"] #menu-container,
+#container[data-issue="TN51"] #menu-container,
+#container[data-issue="TN52"] #menu-container,
+#container[data-issue="TN53"] #menu-container,
+#container[data-issue="TN54"] #menu-container,
+#container[data-issue="TN55"] #menu-container,
+#container[data-issue="TN56"] #menu-container,
+#container[data-issue="TN57"] #menu-container,
+#container[data-issue="TN58"] #menu-container,
+#container[data-issue="TN59"] #menu-container {
+  width: 600px;
+  left: 35px;
+  top: 95px;
+}
+
 #article
 {
   height: 392px;
