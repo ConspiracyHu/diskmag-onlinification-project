@@ -160,18 +160,11 @@ class TerrorNews extends MagInterface
   loadArticleOld(articleidx)
   {
     var issue = this.getCurrentIssueInfo();
-    var dataSegOfs = this.dataSeg + issue.tocOfs;
-    var articleTitleLength = 32;
-    var articleRecordLength = articleTitleLength + (issue.format == 5 ? 12 : 10);
-    var recordStart = dataSegOfs + articleidx*articleRecordLength;
-    
-    var articleType = this.exeUnpView.getUint8(recordStart+articleTitleLength+1);
-    var articleOfs = this.exeUnpView.getUint32(recordStart+articleTitleLength+2,true);
-    var articleLen = this.exeUnpView.getUint32(recordStart+articleTitleLength+6,true);
+    var record = this.menu[articleidx];
+    this.imageOffset = record.imageOffset;
+    var unpackedData = new PKWAREDCL().decompress(this.fullFile.slice(this.ovlStart+record.offset, this.ovlStart+record.offset+record.len));
 
-    var unpackedData = new PKWAREDCL().decompress(this.fullFile.slice(this.ovlStart+articleOfs, this.ovlStart+articleOfs+articleLen));
-
-    if (articleType == 2) // image
+    if (record.type == 2) // image
     {
         this.switchMode("article-image");
 
@@ -293,82 +286,151 @@ class TerrorNews extends MagInterface
   loadCELImage(filename, transparentColor)
   {
     return new Promise((resolve,reject)=>{
+      if (this.inlineImagesOld)
+      {
+        var idx = filename.charCodeAt(0)-0x41-1;
+        var record = this.inlineImagesOld[this.imageOffset + idx];
+
+        var unpackedData = new PKWAREDCL().decompress(this.fullFile.slice(this.ovlStart+record.offset, this.ovlStart+record.offset+record.len));
+
+        this.loadCELImageFromData(unpackedData, transparentColor).then(blobURL=>{
+          resolve( blobURL );
+        });
+        return;
+      }
       if (!this.inlineImages || !this.inlineImages[filename])
       {
         reject("Inline image not found: "+filename);
         return;
       }
       this.loadInternalFile("CELS.UCZ",this.inlineImages[filename]).then(unpackedData=>{
-        var view = new DataView( unpackedData.buffer, 0, unpackedData.buffer.byteLength );
-
-        var sig = view.getUint16( 0, true );
-        var ofs = sig == 0x9119 ? 2 : 0;
-        var width = view.getUint16( ofs, true );
-        var height = view.getUint16( ofs + 2, true );
-
-        // create off-screen canvas element
-        var canvas = document.createElement('canvas'),
-            ctx = canvas.getContext('2d');
-
-        canvas.width = width;
-        canvas.height = height;
-
-        var palette = {};
-        if (sig == 0x9119)
-        {
-          for(var i = 0; i < 256; i++)
-          {
-            palette[i] = {
-              r: view.getUint8( 0x20 + i * 3 + 0 ) * 4,
-              g: view.getUint8( 0x20 + i * 3 + 1 ) * 4,
-              b: view.getUint8( 0x20 + i * 3 + 2 ) * 4,
-            };
-          }
-        }
-        else
-        {
-          palette = this.palette;
-        }
-
-        var i = 0;
-        var ofs = sig == 0x9119 ? 0x320 : 4;
-        var buffer = new Uint8ClampedArray(canvas.width * canvas.height * 4);
-        for(var y = 0; y < canvas.height; y++)
-        {
-          for(var x = 0; x < canvas.width; x++)
-          {
-            var idx = view.getUint8(ofs++);
-            if (idx == transparentColor)
-            {
-              buffer[i++] = 0;
-              buffer[i++] = 0;
-              buffer[i++] = 0;
-              buffer[i++] = 0;
-            }
-            else
-            {
-              buffer[i++] = palette[idx].r;
-              buffer[i++] = palette[idx].g;
-              buffer[i++] = palette[idx].b;
-              buffer[i++] = 255;
-            }
-          }
-        }
-
-        // create imageData object
-        var idata = ctx.createImageData(canvas.width, canvas.height);
-
-        // set our buffer as source
-        idata.data.set(buffer);
-
-        // update canvas with new data
-        ctx.putImageData(idata, 0, 0);
-
-        canvas.toBlob((blob)=>{
-          resolve( URL.createObjectURL( new Blob([blob]) ) );
+        this.loadCELImageFromData(unpackedData, transparentColor).then(blobURL=>{
+          resolve( blobURL );
         });
       }).catch(reject);
     });
+  }
+  loadCELImageFromData(unpackedData, transparentColor)
+  {
+    return new Promise((resolve,reject)=>{
+      var view = new DataView( unpackedData.buffer, 0, unpackedData.buffer.byteLength );
+
+      var sig = view.getUint16( 0, true );
+      var ofs = sig == 0x9119 ? 2 : 0;
+      var width = view.getUint16( ofs, true );
+      var height = view.getUint16( ofs + 2, true );
+
+      // create off-screen canvas element
+      var canvas = document.createElement('canvas'),
+          ctx = canvas.getContext('2d');
+
+      canvas.width = width;
+      canvas.height = height;
+
+      var palette = {};
+      if (sig == 0x9119)
+      {
+        for(var i = 0; i < 256; i++)
+        {
+          palette[i] = {
+            r: view.getUint8( 0x20 + i * 3 + 0 ) * 4,
+            g: view.getUint8( 0x20 + i * 3 + 1 ) * 4,
+            b: view.getUint8( 0x20 + i * 3 + 2 ) * 4,
+          };
+        }
+      }
+      else
+      {
+        palette = this.palette;
+      }
+
+      var i = 0;
+      var ofs = sig == 0x9119 ? 0x320 : 4;
+      var buffer = new Uint8ClampedArray(canvas.width * canvas.height * 4);
+      for(var y = 0; y < canvas.height; y++)
+      {
+        for(var x = 0; x < canvas.width; x++)
+        {
+          var idx = view.getUint8(ofs++);
+          if (idx == transparentColor)
+          {
+            buffer[i++] = 0;
+            buffer[i++] = 0;
+            buffer[i++] = 0;
+            buffer[i++] = 0;
+          }
+          else
+          {
+            buffer[i++] = palette[idx].r;
+            buffer[i++] = palette[idx].g;
+            buffer[i++] = palette[idx].b;
+            buffer[i++] = 255;
+          }
+        }
+      }
+
+      // create imageData object
+      var idata = ctx.createImageData(canvas.width, canvas.height);
+
+      // set our buffer as source
+      idata.data.set(buffer);
+
+      // update canvas with new data
+      ctx.putImageData(idata, 0, 0);
+
+      canvas.toBlob((blob)=>{
+        resolve( URL.createObjectURL( new Blob([blob]) ) );
+      });
+   
+    });
+  }
+  
+  loadOldMenu()
+  {
+    var issue = this.getCurrentIssueInfo();
+    var dataSegOfs = this.dataSeg + issue.tocOfs;
+    var currentOfs = dataSegOfs;
+    
+    var largestImageOffset = 0;
+    this.menu = []
+    for(var i=0; i<500; i++)
+    {
+      if (function(){
+        var articleTitleLength = 32;
+        var articleRecordLength = articleTitleLength + (issue.format == 5 ? 12 : 10);
+        
+        var recordStart = currentOfs;
+        currentOfs += articleRecordLength;
+        var title = ArrayBufferToString( this.exeUnpData.slice( recordStart, recordStart + articleTitleLength ) );
+        if (title == "\x1A".repeat(articleTitleLength-1)+"\0")
+        {
+          return true;
+        }
+        var record = {
+          "title": title,
+          "type": this.exeUnpView.getUint8(recordStart+articleTitleLength+1),
+          "offset" : this.exeUnpView.getUint32(recordStart+articleTitleLength+2,true),
+          "len" : this.exeUnpView.getUint32(recordStart+articleTitleLength+6,true),
+          "imageOffset": this.exeUnpView.getUint16(recordStart+articleTitleLength+10,true),
+        };
+        this.menu.push(record);
+        if (record.imageOffset > largestImageOffset)
+        {
+          largestImageOffset = record.imageOffset;
+        }
+      }.bind(this)()) 
+      {
+        break;
+      }
+    }
+    this.inlineImagesOld = [];
+    for(var i=0; i<largestImageOffset + 8; i++)
+    {
+      var data = this.exeUnpData.slice( currentOfs, currentOfs + 8 )
+      var view = new DataView(data.buffer, 0, data.buffer.byteLength);
+      this.inlineImagesOld.push({offset:view.getUint32(0,true),len:view.getUint32(4,true)});
+      currentOfs += 8;
+    }
   }
 
   loadMenu(first)
@@ -389,38 +451,25 @@ class TerrorNews extends MagInterface
       case 4:
       case 5:
         {
-          var dataSegOfs = this.dataSeg + issue.tocOfs;
-          for(var i=0; i<500; i++)
-          {
-            if (function(){
-              var articleTitleLength = 32;
-              var articleRecordLength = articleTitleLength + (issue.format == 5 ? 12 : 10);
-              
-              var recordStart = dataSegOfs + i*articleRecordLength;
-              var title = ArrayBufferToString( this.exeUnpData.slice( recordStart, recordStart + articleTitleLength ) );
-              if (title == "\x1A".repeat(articleTitleLength-1)+"\0")
+          this.menu.forEach((item,idx)=>{
+            var li = document.createElement("li")
+            li.innerHTML = this.parseToHTML(item.title, Math.floor(idx / linesPerMenu) * 315, idx % linesPerMenu, menuContainer);
+            menu.insertBefore( li, null );
+            if (item.type > 0)
+            {
+              li.setAttribute("data-idx",idx);
+              li.onclick = (function(e)
               {
-                return true;
-              }
-              var li = document.createElement("li")
-              li.innerHTML = this.parseToHTML(title, Math.floor(i / linesPerMenu) * 315, i % linesPerMenu, menuContainer);
-              menu.insertBefore( li, null );
-              if (this.exeUnpData[recordStart + articleTitleLength + 1] != 0)
-              {
-                li.setAttribute("data-idx",i);
-                li.onclick = (function(e)
-                {
-                  var idx = li.getAttribute("data-idx");
+                var idx = li.getAttribute("data-idx");
 
-                  this.pushNavigationState({"edition":this.getEditionID(),"article":idx})
+                this.pushNavigationState({"edition":this.getEditionID(),"article":idx})
 
-                  this.loadArticleOld(idx);
+                this.loadArticleOld(idx);
 
-                  e.stopPropagation();
-                }).bind(this);
-              }
-            }.bind(this)()) break;
-          }
+                e.stopPropagation();
+              }).bind(this);
+            }
+          });
         }
         break;
       case 10:
@@ -789,6 +838,7 @@ class TerrorNews extends MagInterface
               var interfaceOfs = this.exeUnpView.getUint32(ofsList+20,true);
               this.files["MENU.UCM"] = {"offset":this.ovlStart + interfaceOfs,"packer":"none","source":"overlay"};
               
+              this.loadOldMenu();
             } 
             break;
           case 10:
